@@ -13,6 +13,31 @@
 #include "../Polyfills/attributes.hpp"
 
 namespace ARDUINOJSON_NAMESPACE {
+class SlotCache {
+ public:
+  SlotCache() : _head(0) {}
+
+  Slot *pop() {
+    Slot *slot = _head;
+    if (slot) _head = slot->next;
+    return slot;
+  }
+
+  void push(Slot *slot) {
+    slot->next = _head;
+    _head = slot;
+  }
+
+  size_t size() const {
+    size_t sum = 0;
+    for (Slot *s = _head; s; s = s->next) sum += sizeof(Slot);
+    return sum;
+  }
+
+ private:
+  Slot *_head;
+};  // namespace ARDUINOJSON_NAMESPACE
+
 // Handle the memory management (done in derived classes) and calls the parser.
 // This abstract class is implemented by StaticMemoryPool which implements a
 // fixed memory allocation.
@@ -25,28 +50,19 @@ class MemoryPool {
   virtual char *reallocString(char *oldPtr, size_t oldSize, size_t newSize) = 0;
 
   Slot *allocSlot() {
-    if (_freeSlots) {
-      Slot *s = _freeSlots;
-      _freeSlots = s->next;
-      return s;
-    }
-    return reinterpret_cast<Slot *>(allocString(sizeof(Slot)));
+    Slot *s = _cache.pop();
+    return s ? s : reinterpret_cast<Slot *>(allocString(sizeof(Slot)));
   }
 
   void freeSlot(Slot *slot) {
-    slot->next = _freeSlots;
-    _freeSlots = slot;
+    _cache.push(slot);
   }
 
   size_t size() const {
-    size_t result = allocated_bytes();
-    for (Slot *s = _freeSlots; s; s = s->next) result -= sizeof(Slot);
-    return result;
+    return allocated_bytes() - _cache.size();
   }
 
  protected:
-  MemoryPool() : _freeSlots(0) {}
-
   // CAUTION: NO VIRTUAL DESTRUCTOR!
   // If we add a virtual constructor the Arduino compiler will add malloc()
   // and free() to the binary, adding 706 useless bytes.
@@ -65,6 +81,6 @@ class MemoryPool {
   }
 
  private:
-  Slot *_freeSlots;
+  SlotCache _cache;
 };
 }  // namespace ARDUINOJSON_NAMESPACE
