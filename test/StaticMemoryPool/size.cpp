@@ -18,26 +18,26 @@ TEST_CASE("StaticMemoryPool::size()") {
     REQUIRE(0 == memoryPool.size());
   }
 
-  SECTION("Increases after alloc()") {
-    memoryPool.alloc(1);
+  SECTION("Increases after allocString()") {
+    memoryPool.allocString(1);
     REQUIRE(1U <= memoryPool.size());
-    memoryPool.alloc(1);
+    memoryPool.allocString(1);
     REQUIRE(2U <= memoryPool.size());
   }
 
   SECTION("Doesn't grow when memoryPool is full") {
-    memoryPool.alloc(64);
-    memoryPool.alloc(1);
+    memoryPool.allocString(64);
+    memoryPool.allocString(1);
     REQUIRE(64 == memoryPool.size());
   }
 
   SECTION("Does't grow when memoryPool is too small for alloc") {
-    memoryPool.alloc(65);
+    memoryPool.allocString(65);
     REQUIRE(0 == memoryPool.size());
   }
 
   SECTION("Goes back to zero after clear()") {
-    memoryPool.alloc(1);
+    memoryPool.allocString(1);
     memoryPool.clear();
     REQUIRE(0 == memoryPool.size());
   }

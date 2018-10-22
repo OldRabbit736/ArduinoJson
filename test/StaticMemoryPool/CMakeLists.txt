@@ -3,7 +3,7 @@
 # MIT License
 
 add_executable(StaticMemoryPoolTests 
-	alloc.cpp
+	allocString.cpp
 	size.cpp
 	startString.cpp
 )

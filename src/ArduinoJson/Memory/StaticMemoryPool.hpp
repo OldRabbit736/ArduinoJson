@@ -19,13 +19,13 @@ class StaticMemoryPoolBase : public MemoryPool {
   }
 
   // Allocates the specified amount of bytes in the memoryPool
-  virtual char* alloc(size_t bytes) {
+  virtual char* allocString(size_t bytes) {
     alignNextAlloc();
     if (!canAlloc(bytes)) return NULL;
     return doAlloc(bytes);
   }
 
-  virtual char* realloc(char* oldPtr, size_t oldSize, size_t newSize) {
+  virtual char* reallocString(char* oldPtr, size_t oldSize, size_t newSize) {
     size_t n = newSize - oldSize;
     if (!canAlloc(n)) return NULL;
     doAlloc(n);

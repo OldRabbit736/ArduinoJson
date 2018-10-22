@@ -24,7 +24,7 @@ class FixedSizeFlashString {
   template <typename TMemoryPool>
   const char* save(TMemoryPool* memoryPool) const {
     if (!_str) return NULL;
-    void* dup = memoryPool->alloc(_size);
+    void* dup = memoryPool->allocString(_size);
     if (dup != NULL) memcpy_P(dup, (const char*)_str, _size);
     return static_cast<const char*>(dup);
   }

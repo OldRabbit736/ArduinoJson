@@ -27,11 +27,11 @@ struct SpyingAllocator : DefaultAllocator {
   }
 };
 
-TEST_CASE("DynamicMemoryPool::alloc()") {
+TEST_CASE("DynamicMemoryPool::allocString()") {
   SECTION("Returns different pointers") {
     DynamicMemoryPool memoryPool;
-    void* p1 = memoryPool.alloc(1);
-    void* p2 = memoryPool.alloc(2);
+    void* p1 = memoryPool.allocString(1);
+    void* p2 = memoryPool.allocString(2);
     REQUIRE(p1 != p2);
   }
 
@@ -39,8 +39,8 @@ TEST_CASE("DynamicMemoryPool::alloc()") {
     allocatorLog.str("");
     {
       DynamicMemoryPoolBase<SpyingAllocator> memoryPool(1);
-      memoryPool.alloc(1);
-      memoryPool.alloc(1);
+      memoryPool.allocString(1);
+      memoryPool.allocString(1);
     }
     REQUIRE(allocatorLog.str() == "A1A2FF");
   }
@@ -49,10 +49,10 @@ TEST_CASE("DynamicMemoryPool::alloc()") {
     allocatorLog.str("");
     {
       DynamicMemoryPoolBase<SpyingAllocator> memoryPool(1);
-      memoryPool.alloc(1);
-      memoryPool.alloc(1);
+      memoryPool.allocString(1);
+      memoryPool.allocString(1);
       memoryPool.clear();
-      memoryPool.alloc(1);
+      memoryPool.allocString(1);
     }
     REQUIRE(allocatorLog.str() == "A1A2FFA1F");
   }
@@ -61,7 +61,7 @@ TEST_CASE("DynamicMemoryPool::alloc()") {
     allocatorLog.str("");
     {
       DynamicMemoryPoolBase<SpyingAllocator> memoryPool(1);
-      memoryPool.alloc(42);
+      memoryPool.allocString(42);
     }
     REQUIRE(allocatorLog.str() == "A42F");
   }
@@ -70,8 +70,10 @@ TEST_CASE("DynamicMemoryPool::alloc()") {
     // make room for two but not three
     DynamicMemoryPool tinyBuf(2 * sizeof(void*) + 1);
 
-    REQUIRE(isAligned(tinyBuf.alloc(1)));  // this on is aligned by design
-    REQUIRE(isAligned(tinyBuf.alloc(1)));  // this one fits in the first block
-    REQUIRE(isAligned(tinyBuf.alloc(1)));  // this one requires a new block
+    REQUIRE(isAligned(tinyBuf.allocString(1)));  // this on is aligned by design
+    REQUIRE(
+        isAligned(tinyBuf.allocString(1)));  // this one fits in the first block
+    REQUIRE(
+        isAligned(tinyBuf.allocString(1)));  // this one requires a new block
   }
 }

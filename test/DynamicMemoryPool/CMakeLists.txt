@@ -3,7 +3,7 @@
 # MIT License
 
 add_executable(DynamicMemoryPoolTests 
-	alloc.cpp
+	allocString.cpp
 	allocSlot.cpp
 	no_memory.cpp
 	size.cpp

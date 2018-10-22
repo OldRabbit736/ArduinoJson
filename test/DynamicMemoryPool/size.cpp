@@ -14,15 +14,15 @@ TEST_CASE("DynamicMemoryPool::size()") {
     REQUIRE(0 == memoryPool.size());
   }
 
-  SECTION("Increases after alloc()") {
-    memoryPool.alloc(1);
+  SECTION("Increases after allocString()") {
+    memoryPool.allocString(1);
     REQUIRE(1U <= memoryPool.size());
-    memoryPool.alloc(1);
+    memoryPool.allocString(1);
     REQUIRE(2U <= memoryPool.size());
   }
 
   SECTION("Goes back to 0 after clear()") {
-    memoryPool.alloc(1);
+    memoryPool.allocString(1);
     memoryPool.clear();
     REQUIRE(0 == memoryPool.size());
   }

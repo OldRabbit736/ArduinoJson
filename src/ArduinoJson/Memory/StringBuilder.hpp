@@ -13,11 +13,11 @@ class StringBuilder {
  public:
   explicit StringBuilder(MemoryPool* parent)
       : _parent(parent), _start(0), _size(0) {
-    _start = _parent->alloc(1);
+    _start = _parent->allocString(1);
   }
 
   void append(char c) {
-    _start = _parent->realloc(_start, _size + 1, _size + 2);
+    _start = _parent->reallocString(_start, _size + 1, _size + 2);
     if (_start) _start[_size++] = c;
   }
 
