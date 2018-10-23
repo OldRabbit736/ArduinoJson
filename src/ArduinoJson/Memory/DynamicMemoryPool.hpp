@@ -123,7 +123,8 @@ class DynamicMemoryPoolBase : public MemoryPool {
   // Gets the number of bytes occupied in the memoryPool
   size_t allocated_bytes() const {
     size_t total = 0;
-    for (const Block* b = _head; b; b = b->next) total += b->size;
+    for (const Block* b = _head; b; b = b->next)
+      total += round_size_up(b->size);
     return total;
   }
 

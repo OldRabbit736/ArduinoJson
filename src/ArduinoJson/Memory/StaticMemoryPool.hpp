@@ -77,7 +77,7 @@ class StaticMemoryPoolBase : public MemoryPool {
 
   // Gets the current usage of the memoryPool in bytes
   virtual size_t allocated_bytes() const {
-    return _size;
+    return round_size_up(_size);
   }
 
  private:

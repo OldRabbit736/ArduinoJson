@@ -11,11 +11,10 @@
 #include "../Configuration.hpp"
 #include "../Data/Slot.hpp"
 #include "../Polyfills/attributes.hpp"
-
-#define JSON_STRING_SIZE(SIZE) \
-  ((SIZE) + sizeof(ARDUINOJSON_NAMESPACE::StringSlot))
+#include "StringSlot.hpp"
 
 namespace ARDUINOJSON_NAMESPACE {
+
 class SlotCache {
  public:
   SlotCache() : _head(0) {}
@@ -41,15 +40,9 @@ class SlotCache {
   Slot *_head;
 };  // namespace ARDUINOJSON_NAMESPACE
 
-struct StringSlot {
-  char *value;
-  size_t size;
-  // struct StringSlot *next;
-};
-
-// Handle the memory management (done in derived classes) and calls the parser.
-// This abstract class is implemented by StaticMemoryPool which implements a
-// fixed memory allocation.
+// Handle the memory management (done in derived classes) and calls the
+// parser. This abstract class is implemented by StaticMemoryPool which
+// implements a fixed memory allocation.
 class MemoryPool {
  public:
   // Allocates n bytes in the MemoryPool.

@@ -22,7 +22,7 @@ TEST_CASE("StaticMemoryPool::startString()") {
   }
 
   SECTION("ReturnsNullWhenTooSmall") {
-    StaticMemoryPool<JSON_STRING_SIZE(6)-1> memoryPool;
+    StaticMemoryPool<JSON_STRING_SIZE(7) - 1> memoryPool;
 
     StringBuilder str = memoryPool.startString();
     str.append('h');
@@ -30,6 +30,8 @@ TEST_CASE("StaticMemoryPool::startString()") {
     str.append('l');
     str.append('l');
     str.append('o');
+    str.append('!');
+    str.append('!');
 
     REQUIRE(str.complete().isNull());
   }
@@ -41,6 +43,6 @@ TEST_CASE("StaticMemoryPool::startString()") {
     str.append('h');
     str.complete();
 
-    REQUIRE(JSON_STRING_SIZE(2)  == memoryPool.size());
+    REQUIRE(JSON_STRING_SIZE(2) == memoryPool.size());
   }
 }
