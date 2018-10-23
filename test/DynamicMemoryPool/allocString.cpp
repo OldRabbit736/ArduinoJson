@@ -14,56 +14,12 @@ static bool isAligned(void* ptr) {
   return (addr & mask) == 0;
 }
 
-std::stringstream allocatorLog;
-
-struct SpyingAllocator : DefaultAllocator {
-  void* allocate(size_t n) {
-    allocatorLog << "A" << (n - DynamicMemoryPool::EmptyBlockSize);
-    return DefaultAllocator::allocate(n);
-  }
-  void deallocate(void* p) {
-    allocatorLog << "F";
-    return DefaultAllocator::deallocate(p);
-  }
-};
-
 TEST_CASE("DynamicMemoryPool::allocString()") {
   SECTION("Returns different pointers") {
     DynamicMemoryPool memoryPool;
     void* p1 = memoryPool.allocString(1);
     void* p2 = memoryPool.allocString(2);
     REQUIRE(p1 != p2);
-  }
-
-  SECTION("Doubles allocation size when full") {
-    allocatorLog.str("");
-    {
-      DynamicMemoryPoolBase<SpyingAllocator> memoryPool(1);
-      memoryPool.allocString(1);
-      memoryPool.allocString(1);
-    }
-    REQUIRE(allocatorLog.str() == "A1A2FF");
-  }
-
-  SECTION("Resets allocation size after clear()") {
-    allocatorLog.str("");
-    {
-      DynamicMemoryPoolBase<SpyingAllocator> memoryPool(1);
-      memoryPool.allocString(1);
-      memoryPool.allocString(1);
-      memoryPool.clear();
-      memoryPool.allocString(1);
-    }
-    REQUIRE(allocatorLog.str() == "A1A2FFA1F");
-  }
-
-  SECTION("Makes a big allocation when needed") {
-    allocatorLog.str("");
-    {
-      DynamicMemoryPoolBase<SpyingAllocator> memoryPool(1);
-      memoryPool.allocString(42);
-    }
-    REQUIRE(allocatorLog.str() == "A42F");
   }
 
   SECTION("Alignment") {

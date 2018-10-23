@@ -78,8 +78,5 @@ class MemoryPool {
     return bytes;
 #endif
   }
-
- private:
-  SlotCache _cache;
 };
 }  // namespace ARDUINOJSON_NAMESPACE

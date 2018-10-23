@@ -57,11 +57,8 @@ class DynamicMemoryPoolBase : public MemoryPool {
     _nextBlockCapacity = capacity;
   }
 
-  // Gets the number of bytes occupied in the memoryPool
-  size_t allocated_bytes() const {
-    size_t total = 0;
-    for (const Block* b = _head; b; b = b->next) total += b->size;
-    return total;
+  virtual size_t size() const {
+    return allocated_bytes() - _cache.size();
   }
 
   template <typename T>
@@ -69,6 +66,15 @@ class DynamicMemoryPoolBase : public MemoryPool {
     return reinterpret_cast<T*>(canAllocInHead(sizeof(T))
                                     ? allocInHead(sizeof(T))
                                     : allocInNewBlock(sizeof(T)));
+  }
+
+  virtual Slot* allocVariant() {
+    Slot* s = _cache.pop();
+    return s ? s : alloc<Slot>();
+  }
+
+  virtual void freeVariant(Slot* slot) {
+    _cache.push(slot);
   }
 
   // Allocates the specified amount of bytes in the memoryPool
@@ -85,7 +91,7 @@ class DynamicMemoryPoolBase : public MemoryPool {
   }
 
   virtual void append(StringSlot* slot, char c) {
-    if (!slot->value) return;
+    if (!slot || !slot->value) return;
     if (canAllocInHead(1)) {
       allocInHead(1);
     } else {
@@ -114,6 +120,13 @@ class DynamicMemoryPoolBase : public MemoryPool {
   }
 
  private:
+  // Gets the number of bytes occupied in the memoryPool
+  size_t allocated_bytes() const {
+    size_t total = 0;
+    for (const Block* b = _head; b; b = b->next) total += b->size;
+    return total;
+  }
+
   void alignNextAlloc() {
     if (_head) _head->size = this->round_size_up(_head->size);
   }
@@ -150,6 +163,7 @@ class DynamicMemoryPoolBase : public MemoryPool {
   TAllocator _allocator;
   Block* _head;
   size_t _nextBlockCapacity;
+  SlotCache _cache;
 };
 
 // Implements a MemoryPool with dynamic memory allocation.

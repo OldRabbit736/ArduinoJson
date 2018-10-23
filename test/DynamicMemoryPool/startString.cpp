@@ -41,6 +41,6 @@ TEST_CASE("DynamicMemoryPool::startString()") {
     str.append('h');
     str.complete();
 
-    REQUIRE(2 == memoryPool.size());
+    REQUIRE(JSON_STRING_SIZE(2) == memoryPool.size());
   }
 }

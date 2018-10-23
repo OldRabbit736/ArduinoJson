@@ -19,7 +19,7 @@ TEST_CASE("DynamicMemoryPool::allocVariant()") {
 
   SECTION("Returns same pointer after freeSlot()") {
     Slot* s1 = memoryPool.allocVariant();
-    memoryPool.freeSlot(s1);
+    memoryPool.freeVariant(s1);
     Slot* s2 = memoryPool.allocVariant();
 
     REQUIRE(s1 == s2);

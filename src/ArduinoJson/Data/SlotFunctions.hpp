@@ -66,6 +66,6 @@ inline void slotFree(Slot* slot, MemoryPool* pool) {
     }
   }
 
-  pool->freeSlot(slot);
+  pool->freeVariant(slot);
 }
 }  // namespace ARDUINOJSON_NAMESPACE

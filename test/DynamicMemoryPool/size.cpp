@@ -36,14 +36,14 @@ TEST_CASE("DynamicMemoryPool::size()") {
     REQUIRE(2 * sizeof(Slot) == memoryPool.size());
   }
 
-  SECTION("Decreases after freeSlot()") {
+  SECTION("Decreases after freeVariant()") {
     Slot* s1 = memoryPool.allocVariant();
     Slot* s2 = memoryPool.allocVariant();
 
-    memoryPool.freeSlot(s1);
+    memoryPool.freeVariant(s1);
     REQUIRE(sizeof(Slot) == memoryPool.size());
 
-    memoryPool.freeSlot(s2);
+    memoryPool.freeVariant(s2);
     REQUIRE(0 == memoryPool.size());
   }
 }
