@@ -11,25 +11,23 @@ namespace ARDUINOJSON_NAMESPACE {
 
 class StringBuilder {
  public:
-  explicit StringBuilder(MemoryPool* parent)
-      : _parent(parent), _start(0), _size(0) {
-    _start = _parent->allocString(1);
+  explicit StringBuilder(MemoryPool* parent) : _parent(parent) {
+    _slot = _parent->allocString(0);
   }
 
   void append(char c) {
-    _start = _parent->reallocString(_start, _size + 1, _size + 2);
-    if (_start) _start[_size++] = c;
+    _parent->append(_slot, c);
   }
 
   StringInMemoryPool complete() {
-    if (_start) _start[_size] = 0;
-    return _start;
+    if (!_slot) return 0;
+    _parent->append(_slot, 0);
+    return _slot->value;
   }
 
  private:
   MemoryPool* _parent;
-  char* _start;
-  size_t _size;
+  StringSlot* _slot;
 };
 
 }  // namespace ARDUINOJSON_NAMESPACE

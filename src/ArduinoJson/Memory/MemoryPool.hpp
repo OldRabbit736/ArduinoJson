@@ -12,6 +12,9 @@
 #include "../Data/Slot.hpp"
 #include "../Polyfills/attributes.hpp"
 
+#define JSON_STRING_SIZE(SIZE) \
+  ((SIZE) + sizeof(ARDUINOJSON_NAMESPACE::StringSlot))
+
 namespace ARDUINOJSON_NAMESPACE {
 class SlotCache {
  public:
@@ -38,6 +41,12 @@ class SlotCache {
   Slot *_head;
 };  // namespace ARDUINOJSON_NAMESPACE
 
+struct StringSlot {
+  char *value;
+  size_t size;
+  // struct StringSlot *next;
+};
+
 // Handle the memory management (done in derived classes) and calls the parser.
 // This abstract class is implemented by StaticMemoryPool which implements a
 // fixed memory allocation.
@@ -45,30 +54,20 @@ class MemoryPool {
  public:
   // Allocates n bytes in the MemoryPool.
   // Return a pointer to the allocated memory or NULL if allocation fails.
-  virtual char *allocString(size_t size) = 0;
+  virtual StringSlot *allocString(size_t size) = 0;
 
-  virtual char *reallocString(char *oldPtr, size_t oldSize, size_t newSize) = 0;
+  virtual void append(StringSlot *, char c) = 0;
 
-  Slot *allocSlot() {
-    Slot *s = _cache.pop();
-    return s ? s : reinterpret_cast<Slot *>(allocString(sizeof(Slot)));
-  }
+  virtual Slot *allocVariant() = 0;
+  virtual void freeVariant(Slot *) = 0;
 
-  void freeSlot(Slot *slot) {
-    _cache.push(slot);
-  }
-
-  size_t size() const {
-    return allocated_bytes() - _cache.size();
-  }
+  virtual size_t size() const = 0;
 
  protected:
   // CAUTION: NO VIRTUAL DESTRUCTOR!
   // If we add a virtual constructor the Arduino compiler will add malloc()
   // and free() to the binary, adding 706 useless bytes.
   ~MemoryPool() {}
-
-  virtual size_t allocated_bytes() const = 0;
 
   // Preserve aligment if necessary
   static FORCE_INLINE size_t round_size_up(size_t bytes) {

@@ -23,21 +23,22 @@ TEST_CASE("DynamicMemoryPool::size()") {
 
   SECTION("Goes back to 0 after clear()") {
     memoryPool.allocString(1);
+    memoryPool.allocVariant();
     memoryPool.clear();
     REQUIRE(0 == memoryPool.size());
   }
 
-  SECTION("Increases after allocSlot()") {
-    memoryPool.allocSlot();
+  SECTION("Increases after allocVariant()") {
+    memoryPool.allocVariant();
     REQUIRE(sizeof(Slot) == memoryPool.size());
 
-    memoryPool.allocSlot();
+    memoryPool.allocVariant();
     REQUIRE(2 * sizeof(Slot) == memoryPool.size());
   }
 
   SECTION("Decreases after freeSlot()") {
-    Slot* s1 = memoryPool.allocSlot();
-    Slot* s2 = memoryPool.allocSlot();
+    Slot* s1 = memoryPool.allocVariant();
+    Slot* s2 = memoryPool.allocVariant();
 
     memoryPool.freeSlot(s1);
     REQUIRE(sizeof(Slot) == memoryPool.size());

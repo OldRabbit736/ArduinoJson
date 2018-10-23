@@ -4,7 +4,7 @@
 
 add_executable(DynamicMemoryPoolTests 
 	allocString.cpp
-	allocSlot.cpp
+	allocVariant.cpp
 	no_memory.cpp
 	size.cpp
 	startString.cpp

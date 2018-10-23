@@ -18,18 +18,45 @@ class StaticMemoryPoolBase : public MemoryPool {
     return _capacity;
   }
 
-  // Allocates the specified amount of bytes in the memoryPool
-  virtual char* allocString(size_t bytes) {
-    alignNextAlloc();
-    if (!canAlloc(bytes)) return NULL;
-    return doAlloc(bytes);
+  virtual size_t size() const {
+    return allocated_bytes() - _cache.size();
   }
 
-  virtual char* reallocString(char* oldPtr, size_t oldSize, size_t newSize) {
-    size_t n = newSize - oldSize;
-    if (!canAlloc(n)) return NULL;
-    doAlloc(n);
-    return oldPtr;
+  virtual Slot* allocVariant() {
+    Slot* s = _cache.pop();
+    if (s) return s;
+    alignNextAlloc();
+    if (!canAlloc(sizeof(Slot))) return 0;
+    return s ? s : reinterpret_cast<Slot*>(doAlloc(sizeof(Slot)));
+  }
+
+  virtual void freeVariant(Slot* slot) {
+    _cache.push(slot);
+  }
+
+  virtual StringSlot* allocString(size_t len) {
+    const size_t bytes = len + sizeof(StringSlot);
+    alignNextAlloc();
+    if (!canAlloc(bytes)) return NULL;
+    char* block = doAlloc(bytes);
+    if (!block) return 0;
+
+    StringSlot* s = reinterpret_cast<StringSlot*>(block);
+    if (!s) return 0;
+
+    s->value = block + sizeof(StringSlot);
+    s->size = len;
+    return s;
+  }
+
+  virtual void append(StringSlot* slot, char c) {
+    if (!slot) return;
+    if (canAlloc(1)) {
+      doAlloc(1);
+      slot->value[slot->size++] = c;
+    } else {
+      slot->value = 0;
+    }
   }
 
   // Resets the memoryPool.
@@ -68,9 +95,18 @@ class StaticMemoryPoolBase : public MemoryPool {
     return p;
   }
 
+  template <typename T>
+  T* alloc(size_t n) {
+    const size_t bytes = n * sizeof(T);
+    alignNextAlloc();
+    if (!canAlloc(bytes)) return NULL;
+    return reinterpret_cast<T*>(doAlloc(bytes));
+  }
+
   char* _buffer;
   size_t _capacity;
   size_t _size;
+  SlotCache _cache;
 };
 
 #if defined(__clang__)

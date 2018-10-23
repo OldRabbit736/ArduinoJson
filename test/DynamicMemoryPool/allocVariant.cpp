@@ -7,20 +7,20 @@
 
 using namespace ARDUINOJSON_NAMESPACE;
 
-TEST_CASE("DynamicMemoryPool::allocSlot()") {
+TEST_CASE("DynamicMemoryPool::allocVariant()") {
   DynamicMemoryPool memoryPool;
 
   SECTION("Returns different pointer") {
-    Slot* s1 = memoryPool.allocSlot();
-    Slot* s2 = memoryPool.allocSlot();
+    Slot* s1 = memoryPool.allocVariant();
+    Slot* s2 = memoryPool.allocVariant();
 
     REQUIRE(s1 != s2);
   }
 
   SECTION("Returns same pointer after freeSlot()") {
-    Slot* s1 = memoryPool.allocSlot();
+    Slot* s1 = memoryPool.allocVariant();
     memoryPool.freeSlot(s1);
-    Slot* s2 = memoryPool.allocSlot();
+    Slot* s2 = memoryPool.allocVariant();
 
     REQUIRE(s1 == s2);
   }

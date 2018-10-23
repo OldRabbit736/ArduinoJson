@@ -58,28 +58,42 @@ class DynamicMemoryPoolBase : public MemoryPool {
   }
 
   // Gets the number of bytes occupied in the memoryPool
-  virtual size_t allocated_bytes() const {
+  size_t allocated_bytes() const {
     size_t total = 0;
     for (const Block* b = _head; b; b = b->next) total += b->size;
     return total;
   }
 
-  // Allocates the specified amount of bytes in the memoryPool
-  virtual char* allocString(size_t bytes) {
-    alignNextAlloc();
-    return canAllocInHead(bytes) ? allocInHead(bytes) : allocInNewBlock(bytes);
+  template <typename T>
+  T* alloc() {
+    return reinterpret_cast<T*>(canAllocInHead(sizeof(T))
+                                    ? allocInHead(sizeof(T))
+                                    : allocInNewBlock(sizeof(T)));
   }
 
-  virtual char* reallocString(char* oldPtr, size_t oldSize, size_t newSize) {
-    size_t n = newSize - oldSize;
-    if (canAllocInHead(n)) {
-      allocInHead(n);
-      return oldPtr;
-    } else {
-      char* newPtr = allocInNewBlock(newSize);
-      if (oldPtr && newPtr) memcpy(newPtr, oldPtr, oldSize);
-      return newPtr;
+  // Allocates the specified amount of bytes in the memoryPool
+  virtual StringSlot* allocString(size_t len) {
+    alignNextAlloc();
+    StringSlot* slot = alloc<StringSlot>();
+    if (slot) {
+      slot->value =
+          canAllocInHead(len) ? allocInHead(len) : allocInNewBlock(len);
+      slot->size = len;
+      // slot->next = 0;
     }
+    return slot;
+  }
+
+  virtual void append(StringSlot* slot, char c) {
+    if (!slot->value) return;
+    if (canAllocInHead(1)) {
+      allocInHead(1);
+    } else {
+      char* newValue = allocInNewBlock(1);
+      if (newValue) memcpy(newValue, slot->value, slot->size);
+      slot->value = newValue;
+    }
+    slot->value[slot->size++] = c;
   }
 
   // Resets the memoryPool.

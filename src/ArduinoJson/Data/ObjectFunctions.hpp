@@ -29,7 +29,7 @@ inline bool objectContainsKey(const JsonObjectData* obj, const TKey& key) {
 template <typename TKey>
 inline JsonVariantData* objectAdd(JsonObjectData* obj, TKey key,
                                   MemoryPool* pool) {
-  Slot* slot = pool->allocSlot();
+  Slot* slot = pool->allocVariant();
   if (!slot) return 0;
 
   slot->next = 0;

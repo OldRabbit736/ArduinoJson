@@ -7,6 +7,9 @@
 
 using namespace ARDUINOJSON_NAMESPACE;
 
+static const size_t poolCapacity = 64;
+static const size_t longestString = poolCapacity - sizeof(StringSlot);
+
 static bool isAligned(void *ptr) {
   const size_t mask = sizeof(void *) - 1;
   size_t addr = reinterpret_cast<size_t>(ptr);
@@ -14,7 +17,7 @@ static bool isAligned(void *ptr) {
 }
 
 TEST_CASE("StaticMemoryPool::allocString()") {
-  StaticMemoryPool<64> memoryPool;
+  StaticMemoryPool<poolCapacity> memoryPool;
 
   SECTION("Returns different addresses") {
     void *p1 = memoryPool.allocString(1);
@@ -23,18 +26,18 @@ TEST_CASE("StaticMemoryPool::allocString()") {
   }
 
   SECTION("Returns non-NULL when using full capacity") {
-    void *p = memoryPool.allocString(64);
+    void *p = memoryPool.allocString(longestString);
     REQUIRE(0 != p);
   }
 
   SECTION("Returns NULL when full") {
-    memoryPool.allocString(64);
+    memoryPool.allocString(longestString);
     void *p = memoryPool.allocString(1);
     REQUIRE(0 == p);
   }
 
   SECTION("Returns NULL when memoryPool is too small") {
-    void *p = memoryPool.allocString(65);
+    void *p = memoryPool.allocString(longestString+1);
     REQUIRE(0 == p);
   }
 
