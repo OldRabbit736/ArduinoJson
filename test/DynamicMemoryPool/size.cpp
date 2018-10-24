@@ -15,10 +15,10 @@ TEST_CASE("DynamicMemoryPool::size()") {
   }
 
   SECTION("Increases after allocString()") {
-    memoryPool.allocString(1);
-    REQUIRE(1U <= memoryPool.size());
-    memoryPool.allocString(1);
-    REQUIRE(2U <= memoryPool.size());
+    memoryPool.allocString(0);
+    REQUIRE(memoryPool.size() == JSON_STRING_SIZE(0));
+    memoryPool.allocString(0);
+    REQUIRE(memoryPool.size() == 2 * JSON_STRING_SIZE(0));
   }
 
   SECTION("Goes back to 0 after clear()") {

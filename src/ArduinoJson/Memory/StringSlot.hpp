@@ -20,8 +20,8 @@ struct StringSlot {
 
 template <size_t Size>
 struct AddPadding {
-  enum cmpl_type { cmpl = sizeof(void *) - 1 };
-  enum value_type { value = (Size + cmpl) & ~cmpl };
+  enum mask_type { mask = sizeof(void *) - 1 };
+  enum value_type { value = (Size + mask) & ~mask };
 };
 
 template <size_t Size>

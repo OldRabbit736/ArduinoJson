@@ -22,30 +22,30 @@ TEST_CASE("StaticMemoryPool::size()") {
   }
 
   SECTION("Increases after allocString()") {
-    memoryPool.allocString(1);
-    REQUIRE(1U <= memoryPool.size());
-    memoryPool.allocString(1);
-    REQUIRE(2U <= memoryPool.size());
+    memoryPool.allocString(0);
+    REQUIRE(memoryPool.size() == JSON_STRING_SIZE(0));
+    memoryPool.allocString(0);
+    REQUIRE(memoryPool.size() == 2 * JSON_STRING_SIZE(0));
   }
 
   // SECTION("Decreases after freeString()") {
-  //   StringSlot* s1 = memoryPool.allocString(1);
+  //   StringSlot* s1 = memoryPool.allocString(0);
   //   StringSlot* s2 = memoryPool.allocString(1);
 
   //   memoryPool.freeString(s1);
-  //   REQUIRE(1U <= memoryPool.size());
+  //   REQUIRE(memoryPool.size() == JSON_STRING_SIZE(0));
   //   memoryPool.freeString(s2);
-  //   REQUIRE(2U <= memoryPool.size());
+  //   REQUIRE(memoryPool.size() == 0);
   // }
 
   SECTION("Doesn't grow when memoryPool is full") {
     memoryPool.allocString(longestString);
     memoryPool.allocString(1);
-    REQUIRE(64 == memoryPool.size());
+    REQUIRE(poolCapacity == memoryPool.size());
   }
 
   SECTION("Does't grow when memoryPool is too small for alloc") {
-    memoryPool.allocString(longestString+1);
+    memoryPool.allocString(longestString + 1);
     REQUIRE(0 == memoryPool.size());
   }
 
