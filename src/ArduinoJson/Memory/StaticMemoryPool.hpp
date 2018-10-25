@@ -41,16 +41,13 @@ class StaticMemoryPoolBase : public MemoryPool {
   }
 
   virtual StringSlot* allocString(size_t len) {
-    const size_t bytes = len + sizeof(StringSlot);
-    alignNextAlloc();
-    if (!canAlloc(bytes)) return NULL;
-    char* block = doAlloc(bytes);
-    if (!block) return 0;
-
-    StringSlot* s = reinterpret_cast<StringSlot*>(block);
+    StringSlot* s = allocRight<StringSlot>();
     if (!s) return 0;
 
-    s->value = block + sizeof(StringSlot);
+    alignNextAlloc();
+    if (!canAlloc(len)) return 0;
+
+    s->value = doAlloc(len);
     s->size = len;
     return s;
   }
@@ -97,7 +94,7 @@ class StaticMemoryPoolBase : public MemoryPool {
   }
 
   bool canAlloc(size_t bytes) const {
-    return _left + bytes <= _end;
+    return _left + bytes <= _right;
   }
 
   char* doAlloc(size_t bytes) {
@@ -108,7 +105,7 @@ class StaticMemoryPoolBase : public MemoryPool {
 
   template <typename T>
   T* allocRight() {
-    if (_right - sizeof(T) < _left) return 0;
+    if (!canAlloc(sizeof(T))) return 0;
     _right -= sizeof(T);
     return reinterpret_cast<T*>(_right);
   }

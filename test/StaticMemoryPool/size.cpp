@@ -46,7 +46,7 @@ TEST_CASE("StaticMemoryPool::size()") {
 
   SECTION("Does't grow when memoryPool is too small for alloc") {
     memoryPool.allocString(longestString + 1);
-    REQUIRE(0 == memoryPool.size());
+    REQUIRE(JSON_STRING_SIZE(0) <= memoryPool.size());
   }
 
   SECTION("Goes back to zero after clear()") {
