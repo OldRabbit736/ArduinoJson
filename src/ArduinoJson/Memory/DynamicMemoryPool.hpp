@@ -4,8 +4,10 @@
 
 #pragma once
 
+#include <new>
 #include "../Strings/StringInMemoryPool.hpp"
 #include "MemoryPool.hpp"
+#include "StaticMemoryPool.hpp"
 #include "StringBuilder.hpp"
 
 #include <stdlib.h>  // malloc, free
@@ -33,18 +35,14 @@ class DefaultAllocator {
 
 template <typename TAllocator>
 class DynamicMemoryPoolBase : public MemoryPool {
-  struct Block;
-  struct EmptyBlock {
+  struct Block : StaticMemoryPoolBase {
+    Block(char* buffer, size_t capacity, Block* nxt)
+        : StaticMemoryPoolBase(buffer, capacity), next(nxt) {}
     Block* next;
-    size_t capacity;
-    size_t size;
-  };
-  struct Block : EmptyBlock {
-    char data[1];
   };
 
  public:
-  enum { EmptyBlockSize = sizeof(EmptyBlock) };
+  enum { EmptyBlockSize = sizeof(Block) };
 
   DynamicMemoryPoolBase(size_t initialSize = ARDUINOJSON_DEFAULT_POOL_SIZE)
       : _head(NULL), _nextBlockCapacity(initialSize) {}
@@ -58,48 +56,53 @@ class DynamicMemoryPoolBase : public MemoryPool {
   }
 
   virtual size_t size() const {
-    return allocated_bytes() - _cache.size();
-  }
-
-  template <typename T>
-  T* alloc() {
-    return reinterpret_cast<T*>(canAllocInHead(sizeof(T))
-                                    ? allocInHead(sizeof(T))
-                                    : allocInNewBlock(sizeof(T)));
+    size_t sum = 0;
+    for (Block* b = _head; b; b = b->next) {
+      sum += b->size();
+    }
+    return sum;
   }
 
   virtual Slot* allocVariant() {
-    Slot* s = _cache.pop();
-    return s ? s : alloc<Slot>();
+    for (Block* b = _head; b; b = b->next) {
+      Slot* s = b->allocVariant();
+      if (s) return s;
+    }
+
+    if (!addNewBlock(sizeof(Slot))) return 0;
+
+    return _head->allocVariant();
   }
 
   virtual void freeVariant(Slot* slot) {
-    _cache.push(slot);
+    for (Block* b = _head; b; b = b->next) {
+      if (b->owns(slot)) {
+        b->freeVariant(slot);
+        break;
+      }
+    }
   }
 
   // Allocates the specified amount of bytes in the memoryPool
   virtual StringSlot* allocString(size_t len) {
-    alignNextAlloc();
-    StringSlot* slot = alloc<StringSlot>();
-    if (slot) {
-      slot->value =
-          canAllocInHead(len) ? allocInHead(len) : allocInNewBlock(len);
-      slot->size = len;
-      // slot->next = 0;
+    for (Block* b = _head; b; b = b->next) {
+      StringSlot* s = b->allocString(len);
+      if (s) return s;
     }
-    return slot;
+
+    if (!addNewBlock(sizeof(StringSlot) + round_size_up(len))) return 0;
+
+    return _head->allocString(len);
   }
 
   virtual void append(StringSlot* slot, char c) {
-    if (!slot || !slot->value) return;
-    if (canAllocInHead(1)) {
-      allocInHead(1);
-    } else {
-      char* newValue = allocInNewBlock(1);
-      if (newValue) memcpy(newValue, slot->value, slot->size);
-      slot->value = newValue;
+    // TODO: this is slow as hell!!!!!!!!!!!!
+    for (Block* b = _head; b; b = b->next) {
+      if (b->owns(slot)) {
+        b->append(slot, c);
+        break;
+      }
     }
-    slot->value[slot->size++] = c;
   }
 
   // Resets the memoryPool.
@@ -107,7 +110,7 @@ class DynamicMemoryPoolBase : public MemoryPool {
   void clear() {
     Block* currentBlock = _head;
     while (currentBlock != NULL) {
-      _nextBlockCapacity = currentBlock->capacity;
+      _nextBlockCapacity = currentBlock->capacity();
       Block* nextBlock = currentBlock->next;
       _allocator.deallocate(currentBlock);
       currentBlock = nextBlock;
@@ -120,43 +123,14 @@ class DynamicMemoryPoolBase : public MemoryPool {
   }
 
  private:
-  // Gets the number of bytes occupied in the memoryPool
-  size_t allocated_bytes() const {
-    size_t total = 0;
-    for (const Block* b = _head; b; b = b->next)
-      total += round_size_up(b->size);
-    return total;
-  }
-
-  void alignNextAlloc() {
-    if (_head) _head->size = this->round_size_up(_head->size);
-  }
-
-  bool canAllocInHead(size_t bytes) const {
-    return _head != NULL && _head->size + bytes <= _head->capacity;
-  }
-
-  char* allocInHead(size_t bytes) {
-    char* p = _head->data + _head->size;
-    _head->size += bytes;
-    return p;
-  }
-
-  char* allocInNewBlock(size_t bytes) {
+  bool addNewBlock(size_t minCapacity) {
     size_t capacity = _nextBlockCapacity;
-    if (bytes > capacity) capacity = bytes;
-    if (!addNewBlock(capacity)) return NULL;
-    _nextBlockCapacity *= 2;
-    return allocInHead(bytes);
-  }
-
-  bool addNewBlock(size_t capacity) {
-    size_t bytes = EmptyBlockSize + capacity;
-    Block* block = static_cast<Block*>(_allocator.allocate(bytes));
+    if (minCapacity > capacity) capacity = minCapacity;
+    size_t bytes = sizeof(Block) + capacity;
+    char* p = reinterpret_cast<char*>(_allocator.allocate(bytes));
+    Block* block = new (p) Block(p, capacity, _head);
     if (block == NULL) return false;
-    block->capacity = capacity;
-    block->size = 0;
-    block->next = _head;
+    _nextBlockCapacity *= 2;
     _head = block;
     return true;
   }

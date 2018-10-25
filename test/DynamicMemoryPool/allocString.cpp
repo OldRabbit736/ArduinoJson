@@ -24,9 +24,10 @@ TEST_CASE("DynamicMemoryPool::allocString()") {
 
   SECTION("Alignment") {
     // make room for two but not three
-    DynamicMemoryPool tinyBuf(2 * sizeof(void*) + 1);
+    DynamicMemoryPool tinyBuf(2 * JSON_STRING_SIZE(1));
 
-    REQUIRE(isAligned(tinyBuf.allocString(1)));  // this on is aligned by design
+    REQUIRE(
+        isAligned(tinyBuf.allocString(1)));  // this one is aligned by design
     REQUIRE(
         isAligned(tinyBuf.allocString(1)));  // this one fits in the first block
     REQUIRE(

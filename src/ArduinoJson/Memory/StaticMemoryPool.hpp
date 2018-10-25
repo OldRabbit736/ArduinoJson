@@ -73,6 +73,25 @@ class StaticMemoryPoolBase : public MemoryPool {
     return StringBuilder(this);
   }
 
+  bool canAlloc(size_t bytes) const {
+    return _left + bytes <= _right;
+  }
+
+  bool owns(void* p) const {
+    return _begin <= p && p < _end;
+  }
+
+  template <typename T>
+  T* allocRight() {
+    return reinterpret_cast<T*>(allocRight(sizeof(T)));
+  }
+
+  char* allocRight(size_t bytes) {
+    if (!canAlloc(bytes)) return 0;
+    _right -= bytes;
+    return _right;
+  }
+
  protected:
   StaticMemoryPoolBase(char* buffer, size_t capa)
       : _begin(buffer),
@@ -93,21 +112,10 @@ class StaticMemoryPoolBase : public MemoryPool {
     // TODO: remove (no need to align strings)
   }
 
-  bool canAlloc(size_t bytes) const {
-    return _left + bytes <= _right;
-  }
-
   char* doAlloc(size_t bytes) {
     char* p = _left;
     _left += bytes;
     return p;
-  }
-
-  template <typename T>
-  T* allocRight() {
-    if (!canAlloc(sizeof(T))) return 0;
-    _right -= sizeof(T);
-    return reinterpret_cast<T*>(_right);
   }
 
   char *_begin, *_left, *_right, *_end;

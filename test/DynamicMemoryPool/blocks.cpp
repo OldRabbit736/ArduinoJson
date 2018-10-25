@@ -62,9 +62,8 @@ TEST_CASE("DynamicMemoryPool blocks") {
       memoryPool.allocString(42);
     }
     std::stringstream expected;
-    expected << "A" << sizeof(StringSlot)  // block 1
-             << "A" << 42                  // block 2
-             << "FF";
+    expected << "A" << JSON_STRING_SIZE(42)  // block 1
+             << "F";
     REQUIRE(allocatorLog.str() == expected.str());
   }
 }
