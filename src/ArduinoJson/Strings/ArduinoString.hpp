@@ -16,9 +16,10 @@ class ArduinoString {
   const char* save(TMemoryPool* memoryPool) const {
     if (isNull()) return NULL;
     size_t n = _str->length() + 1;
-    void* dup = memoryPool->allocString(n);
-    if (dup != NULL) memcpy(dup, _str->c_str(), n);
-    return static_cast<const char*>(dup);
+    StringSlot* slot = memoryPool->allocString(n);
+    if (!slot) return 0;
+    memcpy(slot->value, _str->c_str(), n);
+    return slot->value;
   }
 
   bool isNull() const {

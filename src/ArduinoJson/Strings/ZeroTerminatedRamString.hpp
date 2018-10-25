@@ -17,10 +17,10 @@ class ZeroTerminatedRamString : public ZeroTerminatedRamStringConst {
   const char* save(TMemoryPool* memoryPool) const {
     if (!_str) return NULL;
     size_t n = size() + 1;
-    void* dup = memoryPool->allocString(n);
-    if (!dup) return NULL;
-    memcpy(dup, _str, n);
-    return static_cast<const char*>(dup);
+    StringSlot* slot = memoryPool->allocString(n);
+    if (!slot) return NULL;
+    memcpy(slot->value, _str, n);
+    return slot->value;
   }
 };
 

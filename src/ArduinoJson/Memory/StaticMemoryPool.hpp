@@ -52,14 +52,12 @@ class StaticMemoryPoolBase : public MemoryPool {
     return s;
   }
 
-  virtual void append(StringSlot* slot, char c) {
-    if (!slot) return;
-    if (canAlloc(1)) {
-      doAlloc(1);
-      slot->value[slot->size++] = c;
-    } else {
-      slot->value = 0;
-    }
+  virtual StringSlot* append(StringSlot* slot, char c) {
+    if (!slot) return 0;
+    if (!canAlloc(1)) return 0;
+    doAlloc(1);
+    slot->value[slot->size++] = c;
+    return slot;
   }
 
   // Resets the memoryPool.

@@ -7,8 +7,11 @@
 #include <stddef.h>  // for size_t
 #include "../Configuration.hpp"
 
+#define MASK (sizeof(void *) - 1)
+#define ADD_PADDING(N) (((N) + MASK) & ~MASK)
+
 #define JSON_STRING_SIZE(SIZE) \
-  (ARDUINOJSON_NAMESPACE::StringSizePadded<(SIZE)>::value)
+  (sizeof(ARDUINOJSON_NAMESPACE::StringSlot) + ADD_PADDING(SIZE))
 
 namespace ARDUINOJSON_NAMESPACE {
 
@@ -17,18 +20,4 @@ struct StringSlot {
   size_t size;
   // struct StringSlot *next;
 };
-
-template <size_t Size>
-struct AddPadding {
-  enum mask_type { mask = sizeof(void *) - 1 };
-  enum value_type { value = (Size + mask) & ~mask };
-};
-
-template <size_t Size>
-struct StringSizeUnpadded {
-  enum { value = Size + sizeof(StringSlot) };
-};
-
-template <size_t Size>
-struct StringSizePadded : AddPadding<StringSizeUnpadded<Size>::value> {};
 }  // namespace ARDUINOJSON_NAMESPACE

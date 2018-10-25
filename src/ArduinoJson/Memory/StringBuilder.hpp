@@ -16,12 +16,12 @@ class StringBuilder {
   }
 
   void append(char c) {
-    _parent->append(_slot, c);
+    _slot = _parent->append(_slot, c);
   }
 
   StringInMemoryPool complete() {
+    _slot = _parent->append(_slot, 0);
     if (!_slot) return 0;
-    _parent->append(_slot, 0);
     return _slot->value;
   }
 

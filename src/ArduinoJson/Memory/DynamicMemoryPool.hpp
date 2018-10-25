@@ -35,9 +35,10 @@ class DefaultAllocator {
 
 template <typename TAllocator>
 class DynamicMemoryPoolBase : public MemoryPool {
-  struct Block : StaticMemoryPoolBase {
-    Block(char* buffer, size_t capacity, Block* nxt)
-        : StaticMemoryPoolBase(buffer, capacity), next(nxt) {}
+  class Block : public StaticMemoryPoolBase {
+   public:
+    Block(char* buf, size_t sz, Block* nxt)
+        : StaticMemoryPoolBase(buf, sz), next(nxt) {}
     Block* next;
   };
 
@@ -95,14 +96,25 @@ class DynamicMemoryPoolBase : public MemoryPool {
     return _head->allocString(len);
   }
 
-  virtual void append(StringSlot* slot, char c) {
+  virtual StringSlot* append(StringSlot* slot, char c) {
     // TODO: this is slow as hell!!!!!!!!!!!!
     for (Block* b = _head; b; b = b->next) {
-      if (b->owns(slot)) {
+      if (!b->owns(slot)) continue;
+      if (b->canAlloc(1)) {
         b->append(slot, c);
-        break;
+        return slot;
       }
+      if (addNewBlock(sizeof(StringSlot) + slot->size + 1)) {
+        StringSlot* newSlot = _head->allocString(slot->size + 1);
+        memcpy(newSlot->value, slot->value, slot->size);
+        newSlot->value[slot->size] = c;
+        b->freeString(slot);
+        return newSlot;
+      }
+      return 0;
     }
+
+    return 0;
   }
 
   // Resets the memoryPool.
@@ -122,15 +134,21 @@ class DynamicMemoryPoolBase : public MemoryPool {
     return StringBuilder(this);
   }
 
+  size_t blockCount() const {
+    size_t sum = 0;
+    for (Block* b = _head; b; b = b->next) sum++;
+    return sum;
+  }
+
  private:
   bool addNewBlock(size_t minCapacity) {
     size_t capacity = _nextBlockCapacity;
     if (minCapacity > capacity) capacity = minCapacity;
     size_t bytes = sizeof(Block) + capacity;
     char* p = reinterpret_cast<char*>(_allocator.allocate(bytes));
-    Block* block = new (p) Block(p, capacity, _head);
-    if (block == NULL) return false;
-    _nextBlockCapacity *= 2;
+    if (!p) return false;
+    Block* block = new (p) Block(p + sizeof(Block), capacity, _head);
+    _nextBlockCapacity = capacity * 2;
     _head = block;
     return true;
   }
@@ -139,7 +157,7 @@ class DynamicMemoryPoolBase : public MemoryPool {
   Block* _head;
   size_t _nextBlockCapacity;
   SlotCache<Slot> _cache;
-};
+};  // namespace ARDUINOJSON_NAMESPACE
 
 // Implements a MemoryPool with dynamic memory allocation.
 // You are strongly encouraged to consider using StaticMemoryPool which is much
