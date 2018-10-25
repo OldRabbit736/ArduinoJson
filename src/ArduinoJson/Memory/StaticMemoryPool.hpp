@@ -11,11 +11,19 @@
 
 namespace ARDUINOJSON_NAMESPACE {
 
+// _begin                                _end
+// v                                        v
+// +-------------+--------------+-----------+
+// | strings...  |   (free)     |  ...slots |
+// +-------------+--------------+-----------+
+//               ^              ^
+//             _left          _right
+
 class StaticMemoryPoolBase : public MemoryPool {
  public:
   // Gets the capacity of the memoryPool in bytes
   size_t capacity() const {
-    return _capacity;
+    return size_t(_end - _begin);
   }
 
   virtual size_t size() const {
@@ -25,9 +33,7 @@ class StaticMemoryPoolBase : public MemoryPool {
   virtual Slot* allocVariant() {
     Slot* s = _cache.pop();
     if (s) return s;
-    alignNextAlloc();
-    if (!canAlloc(sizeof(Slot))) return 0;
-    return s ? s : reinterpret_cast<Slot*>(doAlloc(sizeof(Slot)));
+    return s ? s : allocRight<Slot>();
   }
 
   virtual void freeVariant(Slot* slot) {
@@ -62,7 +68,8 @@ class StaticMemoryPoolBase : public MemoryPool {
   // Resets the memoryPool.
   // USE WITH CAUTION: this invalidates all previously allocated data
   void clear() {
-    _size = 0;
+    _left = _begin;
+    _right = _end;
   }
 
   StringBuilder startString() {
@@ -70,42 +77,43 @@ class StaticMemoryPoolBase : public MemoryPool {
   }
 
  protected:
-  StaticMemoryPoolBase(char* memoryPool, size_t capa)
-      : _buffer(memoryPool), _capacity(capa), _size(0) {}
+  StaticMemoryPoolBase(char* buffer, size_t capa)
+      : _begin(buffer),
+        _left(buffer),
+        _right(buffer + capa),
+        _end(buffer + capa) {}
 
   ~StaticMemoryPoolBase() {}
 
   // Gets the current usage of the memoryPool in bytes
   virtual size_t allocated_bytes() const {
-    return round_size_up(_size);
+    return round_size_up(size_t(_left - _begin + _end - _right));
   }
 
  private:
   void alignNextAlloc() {
-    _size = round_size_up(_size);
+    _left = reinterpret_cast<char*>(round_size_up(size_t(_left)));
+    // TODO: remove (no need to align strings)
   }
 
   bool canAlloc(size_t bytes) const {
-    return _size + bytes <= _capacity;
+    return _left + bytes <= _end;
   }
 
   char* doAlloc(size_t bytes) {
-    char* p = &_buffer[_size];
-    _size += bytes;
+    char* p = _left;
+    _left += bytes;
     return p;
   }
 
   template <typename T>
-  T* alloc(size_t n) {
-    const size_t bytes = n * sizeof(T);
-    alignNextAlloc();
-    if (!canAlloc(bytes)) return NULL;
-    return reinterpret_cast<T*>(doAlloc(bytes));
+  T* allocRight() {
+    if (_right - sizeof(T) < _left) return 0;
+    _right -= sizeof(T);
+    return reinterpret_cast<T*>(_right);
   }
 
-  char* _buffer;
-  size_t _capacity;
-  size_t _size;
+  char *_begin, *_left, *_right, *_end;
   SlotCache _cache;
 };
 
