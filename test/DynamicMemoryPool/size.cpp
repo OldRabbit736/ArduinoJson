@@ -30,18 +30,18 @@ TEST_CASE("DynamicMemoryPool::size()") {
 
   SECTION("Increases after allocVariant()") {
     memoryPool.allocVariant();
-    REQUIRE(sizeof(Slot) == memoryPool.size());
+    REQUIRE(sizeof(VariantSlot) == memoryPool.size());
 
     memoryPool.allocVariant();
-    REQUIRE(2 * sizeof(Slot) == memoryPool.size());
+    REQUIRE(2 * sizeof(VariantSlot) == memoryPool.size());
   }
 
   SECTION("Decreases after freeVariant()") {
-    Slot* s1 = memoryPool.allocVariant();
-    Slot* s2 = memoryPool.allocVariant();
+    VariantSlot* s1 = memoryPool.allocVariant();
+    VariantSlot* s2 = memoryPool.allocVariant();
 
     memoryPool.freeVariant(s1);
-    REQUIRE(sizeof(Slot) == memoryPool.size());
+    REQUIRE(sizeof(VariantSlot) == memoryPool.size());
 
     memoryPool.freeVariant(s2);
     REQUIRE(0 == memoryPool.size());

@@ -94,15 +94,15 @@ TEST_CASE("DynamicJsonDocument") {
   }
 
   SECTION("memoryUsage()") {
-    typedef ARDUINOJSON_NAMESPACE::Slot Slot;
+    typedef ARDUINOJSON_NAMESPACE::VariantSlot VariantSlot;
 
     SECTION("Increases after adding value to array") {
       JsonArray arr = doc.to<JsonArray>();
 
       arr.add(42);
-      REQUIRE(sizeof(Slot) == doc.memoryUsage());
+      REQUIRE(sizeof(VariantSlot) == doc.memoryUsage());
       arr.add(43);
-      REQUIRE(2 * sizeof(Slot) == doc.memoryUsage());
+      REQUIRE(2 * sizeof(VariantSlot) == doc.memoryUsage());
     }
 
     SECTION("Decreases after remove value from array") {
@@ -111,7 +111,7 @@ TEST_CASE("DynamicJsonDocument") {
       arr.add(43);
 
       arr.remove(1);
-      REQUIRE(sizeof(Slot) == doc.memoryUsage());
+      REQUIRE(sizeof(VariantSlot) == doc.memoryUsage());
       arr.remove(0);
       REQUIRE(0 == doc.memoryUsage());
     }
@@ -120,9 +120,9 @@ TEST_CASE("DynamicJsonDocument") {
       JsonObject obj = doc.to<JsonObject>();
 
       obj["a"] = 1;
-      REQUIRE(sizeof(Slot) == doc.memoryUsage());
+      REQUIRE(sizeof(VariantSlot) == doc.memoryUsage());
       obj["b"] = 2;
-      REQUIRE(2 * sizeof(Slot) == doc.memoryUsage());
+      REQUIRE(2 * sizeof(VariantSlot) == doc.memoryUsage());
     }
 
     SECTION("Decreases after removing value from object") {
@@ -131,7 +131,7 @@ TEST_CASE("DynamicJsonDocument") {
       obj["b"] = 2;
 
       obj.remove("a");
-      REQUIRE(sizeof(Slot) == doc.memoryUsage());
+      REQUIRE(sizeof(VariantSlot) == doc.memoryUsage());
       obj.remove("b");
       REQUIRE(0 == doc.memoryUsage());
     }

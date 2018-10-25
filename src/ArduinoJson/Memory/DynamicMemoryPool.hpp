@@ -64,18 +64,18 @@ class DynamicMemoryPoolBase : public MemoryPool {
     return sum;
   }
 
-  virtual Slot* allocVariant() {
+  virtual VariantSlot* allocVariant() {
     for (Block* b = _head; b; b = b->next) {
-      Slot* s = b->allocVariant();
+      VariantSlot* s = b->allocVariant();
       if (s) return s;
     }
 
-    if (!addNewBlock(sizeof(Slot))) return 0;
+    if (!addNewBlock(sizeof(VariantSlot))) return 0;
 
     return _head->allocVariant();
   }
 
-  virtual void freeVariant(Slot* slot) {
+  virtual void freeVariant(VariantSlot* slot) {
     for (Block* b = _head; b; b = b->next) {
       if (b->owns(slot)) {
         b->freeVariant(slot);
@@ -156,7 +156,7 @@ class DynamicMemoryPoolBase : public MemoryPool {
   TAllocator _allocator;
   Block* _head;
   size_t _nextBlockCapacity;
-  SlotCache<Slot> _cache;
+  SlotCache<VariantSlot> _cache;
 };  // namespace ARDUINOJSON_NAMESPACE
 
 // Implements a MemoryPool with dynamic memory allocation.

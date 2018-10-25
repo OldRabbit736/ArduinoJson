@@ -11,16 +11,16 @@ TEST_CASE("StaticMemoryPool::allocVariant()") {
   StaticMemoryPool<64> memoryPool;
 
   SECTION("Returns different pointer") {
-    Slot* s1 = memoryPool.allocVariant();
-    Slot* s2 = memoryPool.allocVariant();
+    VariantSlot* s1 = memoryPool.allocVariant();
+    VariantSlot* s2 = memoryPool.allocVariant();
 
     REQUIRE(s1 != s2);
   }
 
   SECTION("Returns same pointer after freeSlot()") {
-    Slot* s1 = memoryPool.allocVariant();
+    VariantSlot* s1 = memoryPool.allocVariant();
     memoryPool.freeVariant(s1);
-    Slot* s2 = memoryPool.allocVariant();
+    VariantSlot* s2 = memoryPool.allocVariant();
 
     REQUIRE(s1 == s2);
   }

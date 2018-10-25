@@ -25,13 +25,13 @@ TEST_CASE("DynamicMemoryPool blocks") {
   SECTION("Doubles allocation size when full") {
     allocatorLog.str("");
     {
-      DynamicMemoryPoolBase<SpyingAllocator> memoryPool(sizeof(Slot));
+      DynamicMemoryPoolBase<SpyingAllocator> memoryPool(sizeof(VariantSlot));
       memoryPool.allocVariant();
       memoryPool.allocVariant();
     }
     std::stringstream expected;
-    expected << "A" << sizeof(Slot)      // block 1
-             << "A" << 2 * sizeof(Slot)  // block 2, twice bigger
+    expected << "A" << sizeof(VariantSlot)      // block 1
+             << "A" << 2 * sizeof(VariantSlot)  // block 2, twice bigger
              << "FF";
 
     REQUIRE(allocatorLog.str() == expected.str());
@@ -40,17 +40,17 @@ TEST_CASE("DynamicMemoryPool blocks") {
   SECTION("Resets allocation size after clear()") {
     allocatorLog.str("");
     {
-      DynamicMemoryPoolBase<SpyingAllocator> memoryPool(sizeof(Slot));
+      DynamicMemoryPoolBase<SpyingAllocator> memoryPool(sizeof(VariantSlot));
       memoryPool.allocVariant();
       memoryPool.allocVariant();
       memoryPool.clear();
       memoryPool.allocVariant();
     }
     std::stringstream expected;
-    expected << "A" << sizeof(Slot)      // block 1
-             << "A" << 2 * sizeof(Slot)  // block 2, twice bigger
-             << "FF"                     // clear
-             << "A" << sizeof(Slot)      // block 1
+    expected << "A" << sizeof(VariantSlot)      // block 1
+             << "A" << 2 * sizeof(VariantSlot)  // block 2, twice bigger
+             << "FF"                            // clear
+             << "A" << sizeof(VariantSlot)      // block 1
              << "F";
     REQUIRE(allocatorLog.str() == expected.str());
   }

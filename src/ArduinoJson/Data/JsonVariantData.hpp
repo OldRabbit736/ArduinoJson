@@ -26,13 +26,13 @@ enum JsonVariantType {
 };
 
 struct JsonObjectData {
-  struct Slot *head;
-  struct Slot *tail;
+  struct VariantSlot *head;
+  struct VariantSlot *tail;
 };
 
 struct JsonArrayData {
-  struct Slot *head;
-  struct Slot *tail;
+  struct VariantSlot *head;
+  struct VariantSlot *tail;
 };
 
 struct RawData {

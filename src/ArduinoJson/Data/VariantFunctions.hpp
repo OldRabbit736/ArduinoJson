@@ -10,7 +10,6 @@
 #include "ArrayFunctions.hpp"
 #include "JsonVariantData.hpp"
 #include "ObjectFunctions.hpp"
-#include "Slot.hpp"
 
 namespace ARDUINOJSON_NAMESPACE {
 

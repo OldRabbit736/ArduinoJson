@@ -9,9 +9,9 @@
 #include <string.h>
 
 #include "../Configuration.hpp"
-#include "../Data/Slot.hpp"
 #include "../Polyfills/attributes.hpp"
 #include "StringSlot.hpp"
+#include "VariantSlot.hpp"
 
 namespace ARDUINOJSON_NAMESPACE {
 
@@ -52,8 +52,8 @@ class MemoryPool {
   virtual StringSlot *append(StringSlot *, char c) = 0;
   virtual void freeString(StringSlot *) {}
 
-  virtual Slot *allocVariant() = 0;
-  virtual void freeVariant(Slot *) = 0;
+  virtual VariantSlot *allocVariant() = 0;
+  virtual void freeVariant(VariantSlot *) = 0;
 
   virtual size_t size() const = 0;
 

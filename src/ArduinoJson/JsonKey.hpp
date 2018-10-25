@@ -8,7 +8,7 @@ namespace ARDUINOJSON_NAMESPACE {
 
 class JsonKey {
  public:
-  JsonKey(const Slot* slot) : _slot(slot) {}
+  JsonKey(const VariantSlot* slot) : _slot(slot) {}
 
   operator const char*() const {
     return c_str();
@@ -32,6 +32,6 @@ class JsonKey {
   }
 
  private:
-  const Slot* _slot;
+  const VariantSlot* _slot;
 };
 }  // namespace ARDUINOJSON_NAMESPACE

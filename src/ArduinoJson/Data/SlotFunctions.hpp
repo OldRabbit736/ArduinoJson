@@ -7,12 +7,11 @@
 #include "../Memory/MemoryPool.hpp"
 #include "../Strings/StringTypes.hpp"
 #include "JsonVariantData.hpp"
-#include "Slot.hpp"
 
 namespace ARDUINOJSON_NAMESPACE {
 
 template <typename TKey>
-inline bool slotSetKey(Slot* slot, TKey key, MemoryPool* pool) {
+inline bool slotSetKey(VariantSlot* slot, TKey key, MemoryPool* pool) {
   const char* dup = key.save(pool);
   if (!dup) return false;
   slot->key = dup;
@@ -20,20 +19,22 @@ inline bool slotSetKey(Slot* slot, TKey key, MemoryPool* pool) {
   return true;
 }
 
-inline bool slotSetKey(Slot* slot, ZeroTerminatedRamStringConst key,
+inline bool slotSetKey(VariantSlot* slot, ZeroTerminatedRamStringConst key,
                        MemoryPool* pool) {
   slot->key = key.save(pool);
   slot->value.keyIsStatic = true;
   return true;
 }
 
-inline bool slotSetKey(Slot* slot, StringInMemoryPool key, MemoryPool* pool) {
+inline bool slotSetKey(VariantSlot* slot, StringInMemoryPool key,
+                       MemoryPool* pool) {
   slot->key = key.save(pool);
   slot->value.keyIsStatic = false;
   return true;
 }
 
-inline const Slot* slotAdvance(const Slot* slot, size_t distance) {
+inline const VariantSlot* slotAdvance(const VariantSlot* slot,
+                                      size_t distance) {
   while (distance && slot) {
     slot = slot->next;
     distance--;
@@ -41,7 +42,7 @@ inline const Slot* slotAdvance(const Slot* slot, size_t distance) {
   return slot;
 }
 
-inline Slot* slotAdvance(Slot* slot, size_t distance) {
+inline VariantSlot* slotAdvance(VariantSlot* slot, size_t distance) {
   while (distance && slot) {
     slot = slot->next;
     distance--;
@@ -49,7 +50,7 @@ inline Slot* slotAdvance(Slot* slot, size_t distance) {
   return slot;
 }
 
-inline size_t slotSize(const Slot* slot) {
+inline size_t slotSize(const VariantSlot* slot) {
   size_t n = 0;
   while (slot) {
     n++;
@@ -58,10 +59,10 @@ inline size_t slotSize(const Slot* slot) {
   return n;
 }
 
-inline void slotFree(Slot* slot, MemoryPool* pool) {
+inline void slotFree(VariantSlot* slot, MemoryPool* pool) {
   const JsonVariantData& v = slot->value;
   if (v.type == JSON_ARRAY || v.type == JSON_OBJECT) {
-    for (Slot* s = v.content.asObject.head; s; s = s->next) {
+    for (VariantSlot* s = v.content.asObject.head; s; s = s->next) {
       slotFree(s, pool);
     }
   }

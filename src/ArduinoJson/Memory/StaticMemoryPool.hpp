@@ -30,13 +30,13 @@ class StaticMemoryPoolBase : public MemoryPool {
     return allocated_bytes() - _freeVariants.size();
   }
 
-  virtual Slot* allocVariant() {
-    Slot* s = _freeVariants.pop();
+  virtual VariantSlot* allocVariant() {
+    VariantSlot* s = _freeVariants.pop();
     if (s) return s;
-    return s ? s : allocRight<Slot>();
+    return s ? s : allocRight<VariantSlot>();
   }
 
-  virtual void freeVariant(Slot* slot) {
+  virtual void freeVariant(VariantSlot* slot) {
     _freeVariants.push(slot);
   }
 
@@ -117,7 +117,7 @@ class StaticMemoryPoolBase : public MemoryPool {
   }
 
   char *_begin, *_left, *_right, *_end;
-  SlotCache<Slot> _freeVariants;
+  SlotCache<VariantSlot> _freeVariants;
   SlotCache<StringSlot> _freeStrings;
 };
 
