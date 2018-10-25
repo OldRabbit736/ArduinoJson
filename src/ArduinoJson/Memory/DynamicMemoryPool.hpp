@@ -164,7 +164,7 @@ class DynamicMemoryPoolBase : public MemoryPool {
   TAllocator _allocator;
   Block* _head;
   size_t _nextBlockCapacity;
-  SlotCache _cache;
+  SlotCache<Slot> _cache;
 };
 
 // Implements a MemoryPool with dynamic memory allocation.

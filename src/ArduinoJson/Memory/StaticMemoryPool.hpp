@@ -27,17 +27,17 @@ class StaticMemoryPoolBase : public MemoryPool {
   }
 
   virtual size_t size() const {
-    return allocated_bytes() - _cache.size();
+    return allocated_bytes() - _freeVariants.size();
   }
 
   virtual Slot* allocVariant() {
-    Slot* s = _cache.pop();
+    Slot* s = _freeVariants.pop();
     if (s) return s;
     return s ? s : allocRight<Slot>();
   }
 
   virtual void freeVariant(Slot* slot) {
-    _cache.push(slot);
+    _freeVariants.push(slot);
   }
 
   virtual StringSlot* allocString(size_t len) {
@@ -114,7 +114,8 @@ class StaticMemoryPoolBase : public MemoryPool {
   }
 
   char *_begin, *_left, *_right, *_end;
-  SlotCache _cache;
+  SlotCache<Slot> _freeVariants;
+  SlotCache<StringSlot> _freeStrings;
 };
 
 #if defined(__clang__)

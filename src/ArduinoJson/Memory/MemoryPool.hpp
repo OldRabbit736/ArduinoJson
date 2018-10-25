@@ -15,29 +15,30 @@
 
 namespace ARDUINOJSON_NAMESPACE {
 
+template <typename TSlot>
 class SlotCache {
  public:
   SlotCache() : _head(0) {}
 
-  Slot *pop() {
-    Slot *slot = _head;
+  TSlot *pop() {
+    TSlot *slot = _head;
     if (slot) _head = slot->next;
     return slot;
   }
 
-  void push(Slot *slot) {
+  void push(TSlot *slot) {
     slot->next = _head;
     _head = slot;
   }
 
   size_t size() const {
     size_t sum = 0;
-    for (Slot *s = _head; s; s = s->next) sum += sizeof(Slot);
+    for (TSlot *s = _head; s; s = s->next) sum += sizeof(TSlot);
     return sum;
   }
 
  private:
-  Slot *_head;
+  TSlot *_head;
 };  // namespace ARDUINOJSON_NAMESPACE
 
 // Handle the memory management (done in derived classes) and calls the
