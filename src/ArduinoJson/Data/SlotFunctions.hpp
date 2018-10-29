@@ -11,62 +11,60 @@
 namespace ARDUINOJSON_NAMESPACE {
 
 template <typename TKey>
-inline bool slotSetKey(VariantSlot* slot, TKey key, MemoryPool* pool) {
-  const char* dup = key.save(pool);
-  if (!dup) return false;
-  slot->key = dup;
-  slot->value.keyIsStatic = false;
+inline bool slotSetKey(VariantSlot* var, TKey key, MemoryPool* pool) {
+  StringSlot* str = key.save(pool);
+  if (!str) return false;
+  var->key = str->value;
+  var->value.keyIsStatic = false;
   return true;
 }
 
-inline bool slotSetKey(VariantSlot* slot, ZeroTerminatedRamStringConst key,
-                       MemoryPool* pool) {
-  slot->key = key.save(pool);
-  slot->value.keyIsStatic = true;
+inline bool slotSetKey(VariantSlot* var, ZeroTerminatedRamStringConst key,
+                       MemoryPool*) {
+  var->key = key.c_str();
+  var->value.keyIsStatic = true;
   return true;
 }
 
-inline bool slotSetKey(VariantSlot* slot, StringInMemoryPool key,
-                       MemoryPool* pool) {
-  slot->key = key.save(pool);
-  slot->value.keyIsStatic = false;
+inline bool slotSetKey(VariantSlot* var, StringInMemoryPool key, MemoryPool*) {
+  var->key = key.c_str();
+  var->value.keyIsStatic = false;
   return true;
 }
 
-inline const VariantSlot* slotAdvance(const VariantSlot* slot,
-                                      size_t distance) {
-  while (distance && slot) {
-    slot = slot->next;
+inline const VariantSlot* slotAdvance(const VariantSlot* var, size_t distance) {
+  while (distance && var) {
+    var = var->next;
     distance--;
   }
-  return slot;
+  return var;
 }
 
-inline VariantSlot* slotAdvance(VariantSlot* slot, size_t distance) {
-  while (distance && slot) {
-    slot = slot->next;
+inline VariantSlot* slotAdvance(VariantSlot* var, size_t distance) {
+  while (distance && var) {
+    var = var->next;
     distance--;
   }
-  return slot;
+  return var;
 }
 
-inline size_t slotSize(const VariantSlot* slot) {
+inline size_t slotSize(const VariantSlot* var) {
   size_t n = 0;
-  while (slot) {
+  while (var) {
     n++;
-    slot = slot->next;
+    var = var->next;
   }
   return n;
 }
 
-inline void slotFree(VariantSlot* slot, MemoryPool* pool) {
-  const JsonVariantData& v = slot->value;
+inline void slotFree(VariantSlot* var, MemoryPool* pool) {
+  const JsonVariantData& v = var->value;
   if (v.type == JSON_ARRAY || v.type == JSON_OBJECT) {
     for (VariantSlot* s = v.content.asObject.head; s; s = s->next) {
       slotFree(s, pool);
     }
   }
 
-  pool->freeVariant(slot);
+  pool->freeVariant(var);
 }
 }  // namespace ARDUINOJSON_NAMESPACE

@@ -23,13 +23,17 @@ class ZeroTerminatedRamStringConst {
     return !_str;
   }
 
-  template <typename TMemoryPool>
-  const char* save(TMemoryPool*) const {
-    return _str;
-  }
+  // template <typename TMemoryPool>
+  // const char* save(TMemoryPool*) const {
+  //   return _str;
+  // }
 
   size_t size() const {
     return strlen(_str);
+  }
+
+  const char* c_str() const {
+    return _str;
   }
 
  protected:

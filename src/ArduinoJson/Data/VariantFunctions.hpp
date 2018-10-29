@@ -23,8 +23,9 @@ inline T variantAsIntegral(const JsonVariantData* var) {
     case JSON_NEGATIVE_INTEGER:
       return T(~var->content.asInteger + 1);
     case JSON_LINKED_STRING:
-    case JSON_OWNED_STRING:
       return parseInteger<T>(var->content.asString);
+    case JSON_OWNED_STRING:
+      return parseInteger<T>(var->content.asOwnedString->value);
     case JSON_FLOAT:
       return T(var->content.asFloat);
     default:
@@ -47,8 +48,9 @@ inline T variantAsFloat(const JsonVariantData* var) {
     case JSON_NEGATIVE_INTEGER:
       return -static_cast<T>(var->content.asInteger);
     case JSON_LINKED_STRING:
-    case JSON_OWNED_STRING:
       return parseFloat<T>(var->content.asString);
+    case JSON_OWNED_STRING:
+      return parseFloat<T>(var->content.asOwnedString->value);
     case JSON_FLOAT:
       return static_cast<T>(var->content.asFloat);
     default:
@@ -58,11 +60,14 @@ inline T variantAsFloat(const JsonVariantData* var) {
 
 inline const char* variantAsString(const JsonVariantData* var) {
   if (!var) return 0;
-  if (var &&
-      (var->type == JSON_LINKED_STRING || var->type == JSON_OWNED_STRING))
-    return var->content.asString;
-  else
-    return 0;
+  switch (var->type) {
+    case JSON_LINKED_STRING:
+      return var->content.asString;
+    case JSON_OWNED_STRING:
+      return var->content.asOwnedString->value;
+    default:
+      return 0;
+  }
 }
 
 inline JsonArrayData* variantAsArray(JsonVariantData* var) {
@@ -140,10 +145,10 @@ template <typename T>
 inline bool variantSetOwnedRaw(JsonVariantData* var, SerializedValue<T> value,
                                MemoryPool* pool) {
   if (!var) return false;
-  const char* dup = makeString(value.data(), value.size()).save(pool);
-  if (dup) {
+  StringSlot* slot = makeString(value.data(), value.size()).save(pool);
+  if (slot) {
     var->type = JSON_OWNED_RAW;
-    var->content.asRaw.data = dup;
+    var->content.asRaw.data = slot->value;
     var->content.asRaw.size = value.size();
     return true;
   } else {
@@ -155,10 +160,10 @@ inline bool variantSetOwnedRaw(JsonVariantData* var, SerializedValue<T> value,
 template <typename T>
 inline bool variantSetString(JsonVariantData* var, T value, MemoryPool* pool) {
   if (!var) return false;
-  const char* dup = value.save(pool);
-  if (dup) {
+  StringSlot* slot = value.save(pool);
+  if (slot) {
     var->type = JSON_OWNED_STRING;
-    var->content.asString = dup;
+    var->content.asOwnedString = slot;
     return true;
   } else {
     var->type = JSON_NULL;
@@ -211,7 +216,8 @@ inline bool variantCopy(JsonVariantData* dst, const JsonVariantData* src,
     case JSON_OBJECT:
       return objectCopy(variantToObject(dst), &src->content.asObject, pool);
     case JSON_OWNED_STRING:
-      return variantSetString(dst, src->content.asString, pool);
+      return variantSetString(
+          dst, makeString(src->content.asOwnedString->value), pool);
     case JSON_OWNED_RAW:
       return variantSetOwnedRaw(
           dst,
@@ -259,10 +265,16 @@ inline bool variantEquals(const JsonVariantData* a, const JsonVariantData* b) {
 
   switch (a->type) {
     case JSON_LINKED_RAW:
-    case JSON_OWNED_RAW:
     case JSON_LINKED_STRING:
-    case JSON_OWNED_STRING:
       return !strcmp(a->content.asString, b->content.asString);
+
+    case JSON_OWNED_RAW:
+    case JSON_OWNED_STRING:
+
+      return a->content.asOwnedString->size == b->content.asOwnedString->size &&
+             !memcmp(a->content.asOwnedString->value,
+                     b->content.asOwnedString->value,
+                     a->content.asOwnedString->size);
 
     case JSON_BOOLEAN:
     case JSON_POSITIVE_INTEGER:

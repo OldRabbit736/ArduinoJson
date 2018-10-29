@@ -89,8 +89,10 @@ inline void JsonVariantConst::accept(Visitor& visitor) const {
       return visitor.visitObject(JsonObjectConst(&_data->content.asObject));
 
     case JSON_LINKED_STRING:
-    case JSON_OWNED_STRING:
       return visitor.visitString(_data->content.asString);
+
+    case JSON_OWNED_STRING:
+      return visitor.visitString(_data->content.asOwnedString->value);
 
     case JSON_LINKED_RAW:
     case JSON_OWNED_RAW:

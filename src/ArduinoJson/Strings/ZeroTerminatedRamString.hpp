@@ -14,13 +14,12 @@ class ZeroTerminatedRamString : public ZeroTerminatedRamStringConst {
       : ZeroTerminatedRamStringConst(str) {}
 
   template <typename TMemoryPool>
-  const char* save(TMemoryPool* memoryPool) const {
+  StringSlot* save(TMemoryPool* memoryPool) const {
     if (!_str) return NULL;
     size_t n = size() + 1;
     StringSlot* slot = memoryPool->allocString(n);
-    if (!slot) return NULL;
-    memcpy(slot->value, _str, n);
-    return slot->value;
+    if (slot) memcpy(slot->value, _str, n);
+    return slot;
   }
 };
 

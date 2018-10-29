@@ -206,7 +206,7 @@ class JsonVariant : public JsonVariantProxy<JsonVariantData>,
 
   // set(const char*);
   FORCE_INLINE bool set(StringInMemoryPool value) const {
-    return variantSetString(_data, value, _memoryPool);
+    return variantSetString(_data, value.c_str());
   }
 
   bool set(JsonVariantConst value) const;
