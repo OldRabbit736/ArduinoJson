@@ -171,6 +171,13 @@ inline bool variantSetString(JsonVariantData* var, T value, MemoryPool* pool) {
   }
 }
 
+inline bool variantSetOwnedString(JsonVariantData* var, StringSlot* slot) {
+  if (!var) return false;
+  var->type = JSON_OWNED_STRING;
+  var->content.asOwnedString = slot;
+  return true;
+}
+
 inline bool variantSetString(JsonVariantData* var, const char* value) {
   if (!var) return false;
   var->type = JSON_LINKED_STRING;

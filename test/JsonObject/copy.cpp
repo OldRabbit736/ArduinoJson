@@ -44,9 +44,7 @@ TEST_CASE("JsonObject::copyFrom()") {
 
     obj2.copyFrom(obj1);
 
-    CAPTURE(obj1);
-    CAPTURE(obj2);
-    CHECK(doc1.memoryUsage() == doc2.memoryUsage());
+    REQUIRE(doc1.memoryUsage() == doc2.memoryUsage());
     REQUIRE(obj2["hello"] == std::string("world"));
   }
 

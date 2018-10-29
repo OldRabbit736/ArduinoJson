@@ -11,6 +11,8 @@ namespace ARDUINOJSON_NAMESPACE {
 
 class StringBuilder {
  public:
+  typedef StringInMemoryPool StringType;
+
   explicit StringBuilder(MemoryPool* parent) : _parent(parent) {
     _slot = _parent->allocString(0);
   }
@@ -19,10 +21,9 @@ class StringBuilder {
     _slot = _parent->append(_slot, c);
   }
 
-  StringInMemoryPool complete() {
+  StringType complete() {
     _slot = _parent->append(_slot, 0);
-    if (!_slot) return 0;
-    return _slot->value;
+    return _slot;
   }
 
  private:

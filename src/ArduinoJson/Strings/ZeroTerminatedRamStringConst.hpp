@@ -11,7 +11,7 @@ namespace ARDUINOJSON_NAMESPACE {
 
 class ZeroTerminatedRamStringConst {
  public:
-  ZeroTerminatedRamStringConst(const char* str) : _str(str) {}
+  ZeroTerminatedRamStringConst(const char* str = 0) : _str(str) {}
 
   bool equals(const char* expected) const {
     const char* actual = _str;

@@ -256,7 +256,11 @@ class JsonObject : public JsonObjectProxy<JsonObjectData>, public Visitable {
     return set_impl(makeString(key));
   }
 
-  FORCE_INLINE JsonVariant set(const StringInMemoryPool& key) const {
+  FORCE_INLINE JsonVariant set(StringInMemoryPool key) const {
+    return set_impl(key);
+  }
+
+  FORCE_INLINE JsonVariant set(ZeroTerminatedRamStringConst key) const {
     return set_impl(key);
   }
 
