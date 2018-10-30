@@ -15,7 +15,7 @@ inline VariantSlot* objectFindSlot(const JsonObjectData* obj, TKey key) {
   if (!obj) return 0;
   VariantSlot* slot = obj->head;
   while (slot) {
-    if (key.equals(slot->key)) break;
+    if (key.equals(slotGetKey(slot))) break;
     slot = slot->next;
   }
   return slot;
@@ -106,9 +106,9 @@ inline bool objectCopy(JsonObjectData* dst, const JsonObjectData* src,
   for (VariantSlot* s = src->head; s; s = s->next) {
     JsonVariantData* var;
     if (s->value.keyIsStatic)
-      var = objectAdd(dst, ZeroTerminatedRamStringConst(s->key), pool);
+      var = objectAdd(dst, ZeroTerminatedRamStringConst(s->linkedKey), pool);
     else
-      var = objectAdd(dst, ZeroTerminatedRamString(s->key), pool);
+      var = objectAdd(dst, ZeroTerminatedRamString(s->ownedKey->value), pool);
     if (!variantCopy(var, &s->value, pool)) return false;
   }
   return true;
@@ -120,7 +120,7 @@ inline bool objectEquals(const JsonObjectData* o1, const JsonObjectData* o2) {
 
   for (VariantSlot* s = o1->head; s; s = s->next) {
     JsonVariantData* v1 = &s->value;
-    JsonVariantData* v2 = objectGet(o2, makeString(s->key));
+    JsonVariantData* v2 = objectGet(o2, makeString(slotGetKey(s)));
     if (!variantEquals(v1, v2)) return false;
   }
   return true;

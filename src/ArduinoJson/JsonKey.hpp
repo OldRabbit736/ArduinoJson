@@ -15,15 +15,11 @@ class JsonKey {
   }
 
   const char* c_str() const {
-    return _slot ? _slot->key : 0;
+    return _slot ? slotGetKey(_slot) : 0;
   }
 
   bool isNull() const {
-    return _slot == 0 || _slot->key == 0;
-  }
-
-  bool isStatic() const {
-    return _slot ? _slot->value.keyIsStatic : true;
+    return _slot == 0 || _slot->linkedKey == 0;
   }
 
   friend bool operator==(JsonKey lhs, const char* rhs) {
