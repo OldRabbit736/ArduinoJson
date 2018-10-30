@@ -90,6 +90,11 @@ class StaticMemoryPoolBase : public MemoryPool {
     return _right;
   }
 
+  // Workaround for missing placement new
+  void* operator new(size_t, void* p) {
+    return p;
+  }
+
  protected:
   StaticMemoryPoolBase(char* buffer, size_t capa)
       : _begin(buffer),

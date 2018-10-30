@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <new>
 #include "../Strings/StringInMemoryPool.hpp"
 #include "MemoryPool.hpp"
 #include "StaticMemoryPool.hpp"

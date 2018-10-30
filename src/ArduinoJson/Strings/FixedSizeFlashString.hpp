@@ -22,7 +22,7 @@ class FixedSizeFlashString {
   }
 
   template <typename TMemoryPool>
-  StringSlotlot* save(TMemoryPool* memoryPool) const {
+  StringSlot* save(TMemoryPool* memoryPool) const {
     if (!_str) return NULL;
     StringSlot* slot = memoryPool->allocString(_size);
     if (!slot) memcpy_P(slot->value, (const char*)_str, _size);
