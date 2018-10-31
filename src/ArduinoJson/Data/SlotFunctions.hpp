@@ -63,10 +63,17 @@ inline size_t slotSize(const VariantSlot* var) {
 
 inline void slotFree(VariantSlot* var, MemoryPool* pool) {
   const JsonVariantData& v = var->value;
-  if (v.type == JSON_ARRAY || v.type == JSON_OBJECT) {
-    for (VariantSlot* s = v.content.asObject.head; s; s = s->next) {
-      slotFree(s, pool);
-    }
+
+  switch (v.type) {
+    case JSON_ARRAY:
+    case JSON_OBJECT:
+      for (VariantSlot* s = v.content.asObject.head; s; s = s->next) {
+        slotFree(s, pool);
+      }
+      break;
+    case JSON_OWNED_STRING:
+      pool->freeString(v.content.asOwnedString);
+      break;
   }
 
   pool->freeVariant(var);

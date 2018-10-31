@@ -19,18 +19,27 @@ TEST_CASE("JsonObject::remove()") {
       obj.remove("a");
       serializeJson(obj, result);
       REQUIRE("{\"b\":1,\"c\":2}" == result);
+      REQUIRE(doc.memoryUsage() == JSON_OBJECT_SIZE(2));
     }
 
     SECTION("Remove middle") {
       obj.remove("b");
       serializeJson(obj, result);
       REQUIRE("{\"a\":0,\"c\":2}" == result);
+      REQUIRE(doc.memoryUsage() == JSON_OBJECT_SIZE(2));
     }
 
     SECTION("Remove last") {
       obj.remove("c");
       serializeJson(obj, result);
       REQUIRE("{\"a\":0,\"b\":1}" == result);
+      REQUIRE(doc.memoryUsage() == JSON_OBJECT_SIZE(2));
+    }
+
+    SECTION("Release value string memory") {
+      obj["c"] = std::string("Copy me!");
+      obj.remove("c");
+      REQUIRE(doc.memoryUsage() == JSON_OBJECT_SIZE(2));
     }
   }
 
