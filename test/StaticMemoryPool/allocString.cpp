@@ -14,9 +14,15 @@ TEST_CASE("StaticMemoryPool::allocFrozenString()") {
   StaticMemoryPool<poolCapacity> pool;
 
   SECTION("Returns different addresses") {
-    void *a = pool.allocFrozenString(0);
-    void *b = pool.allocFrozenString(0);
+    StringSlot *a = pool.allocFrozenString(1);
+    StringSlot *b = pool.allocFrozenString(1);
     REQUIRE(a != b);
+    REQUIRE(a->value != b->value);
+  }
+
+  SECTION("Returns a StringSlot of the right size") {
+    StringSlot *s = pool.allocFrozenString(42);
+    REQUIRE(s->size == 42);
   }
 
   SECTION("Returns NULL when full") {
@@ -41,6 +47,7 @@ TEST_CASE("StaticMemoryPool::allocFrozenString()") {
     StringSlot *b = pool.allocFrozenString(1);
 
     REQUIRE(a == b);
+    REQUIRE(a->value == b->value);
   }
 
   SECTION("Returns same address after freeString()") {
@@ -49,5 +56,30 @@ TEST_CASE("StaticMemoryPool::allocFrozenString()") {
     StringSlot *b = pool.allocFrozenString(1);
 
     REQUIRE(a == b);
+    REQUIRE(a->value == b->value);
+  }
+
+  SECTION("Can use full capacity when fresh") {
+    StringSlot *a = pool.allocFrozenString(longestString);
+
+    REQUIRE(a != NULL);
+  }
+
+  SECTION("Can use full capacity after clear") {
+    pool.allocFrozenString(longestString);
+    pool.clear();
+
+    StringSlot *a = pool.allocFrozenString(longestString);
+
+    REQUIRE(a != NULL);
+  }
+
+  SECTION("Can use full capacity after freeString()") {
+    StringSlot *a = pool.allocFrozenString(longestString);
+    pool.freeString(a);
+
+    StringSlot *b = pool.allocFrozenString(longestString);
+
+    REQUIRE(b != NULL);
   }
 }

@@ -42,12 +42,12 @@ class StaticMemoryPoolBase : public MemoryPool {
 
   virtual void freeString(StringSlot* slot) {
     _freeStrings.push(slot);
+    _left -= slot->size;
   }
 
   virtual StringSlot* allocFrozenString(size_t n) {
     StringSlot* s = allocStringSlot();
     if (!s) return 0;
-
     if (!canAlloc(n)) return 0;
 
     s->value = _left;
