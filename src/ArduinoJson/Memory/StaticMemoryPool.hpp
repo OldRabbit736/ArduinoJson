@@ -174,7 +174,6 @@ class StaticMemoryPoolBase : public MemoryPool {
       _right += sizeof(VariantSlot);
       goto loop;
     }
-    //} while (false);
   }
 
   char *_begin, *_left, *_right, *_end;

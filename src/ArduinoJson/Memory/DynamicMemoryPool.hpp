@@ -83,6 +83,15 @@ class DynamicMemoryPoolBase : public MemoryPool {
     }
   }
 
+  virtual void freeString(StringSlot* slot) {
+    for (Block* b = _head; b; b = b->next) {
+      if (b->owns(slot)) {
+        b->freeString(slot);
+        break;
+      }
+    }
+  }
+
   virtual StringSlot* allocFrozenString(size_t n) {
     for (Block* b = _head; b; b = b->next) {
       StringSlot* s = b->allocFrozenString(n);

@@ -9,10 +9,20 @@
 using namespace ARDUINOJSON_NAMESPACE;
 
 TEST_CASE("DynamicMemoryPool::allocFrozenString()") {
+  DynamicMemoryPool pool;
+
   SECTION("Returns different pointers") {
-    DynamicMemoryPool memoryPool;
-    void* p1 = memoryPool.allocFrozenString(1);
-    void* p2 = memoryPool.allocFrozenString(2);
-    REQUIRE(p1 != p2);
+    StringSlot* a = pool.allocFrozenString(1);
+    StringSlot* b = pool.allocFrozenString(2);
+    REQUIRE(a != b);
+    REQUIRE(a->value != b->value);
+  }
+
+  SECTION("Returns same slot after freeString") {
+    StringSlot* a = pool.allocFrozenString(1);
+    pool.freeString(a);
+    StringSlot* b = pool.allocFrozenString(2);
+    REQUIRE(a == b);
+    REQUIRE(a->value == b->value);
   }
 }

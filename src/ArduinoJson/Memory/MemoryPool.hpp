@@ -18,7 +18,7 @@ class MemoryPool {
   virtual StringSlot *allocFrozenString(size_t) = 0;
   virtual StringSlot *expandString(StringSlot *) = 0;
   virtual void freezeString(StringSlot *) = 0;
-  virtual void freeString(StringSlot *) {}
+  virtual void freeString(StringSlot *) = 0;
 
   virtual VariantSlot *allocVariant() = 0;
   virtual void freeVariant(VariantSlot *) = 0;
