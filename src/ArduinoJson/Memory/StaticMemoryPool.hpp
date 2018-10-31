@@ -53,6 +53,7 @@ class StaticMemoryPoolBase : public MemoryPool {
 
   virtual void freeVariant(VariantSlot* slot) {
     freeVariantSlot(slot);
+    compactRightSide();
   }
 
   virtual void freeString(StringSlot* slot) {
@@ -164,16 +165,23 @@ class StaticMemoryPoolBase : public MemoryPool {
   }
 
   void compactRightSide() {
-    while (_freeStrings.remove(reinterpret_cast<StringSlot*>(_right))) {
+  loop:
+    if (_freeStrings.remove(_right)) {
       _right += sizeof(StringSlot);
+      goto loop;
     }
+    if (_freeVariants.remove(_right)) {
+      _right += sizeof(VariantSlot);
+      goto loop;
+    }
+    //} while (false);
   }
 
   char *_begin, *_left, *_right, *_end;
   SlotList<VariantSlot> _freeVariants;
   SlotList<StringSlot> _freeStrings;
   SlotList<StringSlot> _usedString;
-};
+};  // namespace ARDUINOJSON_NAMESPACE
 
 #if defined(__clang__)
 #pragma clang diagnostic push

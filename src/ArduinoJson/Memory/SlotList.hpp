@@ -24,7 +24,7 @@ class SlotList {
     _head = slot;
   }
 
-  bool remove(TSlot *slot) {
+  bool remove(const TSlot *slot) {
     if (_head == slot) {
       _head = slot->next;
       return true;
@@ -38,6 +38,10 @@ class SlotList {
     }
 
     return false;
+  }
+
+  bool remove(const void *slot) {
+    return remove(reinterpret_cast<const TSlot *>(slot));
   }
 
   template <typename Functor>

@@ -7,12 +7,9 @@
 
 using namespace ARDUINOJSON_NAMESPACE;
 
-static const size_t poolCapacity = 64;
-static const size_t longestString = poolCapacity - sizeof(StringSlot);
-static const size_t longestStringPer4 =
-    (poolCapacity - sizeof(StringSlot) * 4) / 4;
-
 TEST_CASE("StaticMemoryPool::allocFrozenString()") {
+  const size_t poolCapacity = 64;
+  const size_t longestString = poolCapacity - sizeof(StringSlot);
   StaticMemoryPool<poolCapacity> pool;
 
   SECTION("Returns different addresses") {
@@ -78,20 +75,33 @@ TEST_CASE("StaticMemoryPool::allocFrozenString()") {
 }
 
 TEST_CASE("StaticMemoryPool::freeString()") {
+  const size_t poolCapacity = 256;
+  const size_t longestString = poolCapacity - sizeof(StringSlot);
   StaticMemoryPool<poolCapacity> pool;
 
+  static const size_t testStringSize =
+      (poolCapacity - sizeof(StringSlot) * 4 - sizeof(VariantSlot) * 4) / 4;
+
   SECTION("Restores full capacity") {
-    StringSlot *slots[4];
+    StringSlot *strings[4];
+    VariantSlot *variants[4];
+
     for (int i = 0; i < 4; i++) {
-      slots[i] = pool.allocFrozenString(longestStringPer4);
-      REQUIRE(slots[i] != NULL);
+      strings[i] = pool.allocFrozenString(testStringSize);
+      REQUIRE(strings[i] != NULL);
+      variants[i] = pool.allocVariant();
+      REQUIRE(variants[i] != NULL);
     }
 
     // In random order
-    pool.freeString(slots[2]);
-    pool.freeString(slots[0]);
-    pool.freeString(slots[1]);
-    pool.freeString(slots[3]);
+    pool.freeString(strings[2]);
+    pool.freeVariant(variants[3]);
+    pool.freeVariant(variants[0]);
+    pool.freeString(strings[0]);
+    pool.freeVariant(variants[1]);
+    pool.freeString(strings[1]);
+    pool.freeVariant(variants[2]);
+    pool.freeString(strings[3]);
 
     StringSlot *b = pool.allocFrozenString(longestString);
 
