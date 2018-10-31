@@ -2,7 +2,7 @@
 // Copyright Benoit Blanchon 2014-2018
 // MIT License
 
-#include <ArduinoJson.h>
+#include <ArduinoJson/Memory/DynamicMemoryPool.hpp>
 #include <catch.hpp>
 #include <sstream>
 

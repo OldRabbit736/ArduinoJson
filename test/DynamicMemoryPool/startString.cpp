@@ -12,13 +12,7 @@ TEST_CASE("DynamicMemoryPool::startString()") {
     DynamicMemoryPool memoryPool(JSON_STRING_SIZE(8));
 
     StringBuilder str = memoryPool.startString();
-    str.append('a');
-    str.append('b');
-    str.append('c');
-    str.append('d');
-    str.append('e');
-    str.append('f');
-    str.append('g');
+    str.append("abcdefg");
 
     REQUIRE(memoryPool.blockCount() == 1);
     REQUIRE(str.complete().equals("abcdefg"));
@@ -28,17 +22,7 @@ TEST_CASE("DynamicMemoryPool::startString()") {
     DynamicMemoryPool memoryPool(JSON_STRING_SIZE(8));
 
     StringBuilder str = memoryPool.startString();
-    str.append('a');
-    str.append('b');
-    str.append('c');
-    str.append('d');
-    str.append('e');
-    str.append('f');
-    str.append('g');
-    str.append('h');
-    str.append('A');  // force a new block
-    str.append('B');
-    str.append('C');
+    str.append("abcdefghABC");
 
     REQUIRE(memoryPool.blockCount() == 2);
     REQUIRE(str.complete().equals("abcdefghABC"));

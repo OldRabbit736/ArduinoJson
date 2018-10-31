@@ -83,37 +83,34 @@ class DynamicMemoryPoolBase : public MemoryPool {
     }
   }
 
-  // Allocates the specified amount of bytes in the memoryPool
-  virtual StringSlot* allocString(size_t len) {
+  virtual StringSlot* allocString() {
     for (Block* b = _head; b; b = b->next) {
-      StringSlot* s = b->allocString(len);
+      StringSlot* s = b->allocString();
       if (s) return s;
     }
 
-    if (!addNewBlock(sizeof(StringSlot) + round_size_up(len))) return 0;
+    if (!addNewBlock(sizeof(StringSlot))) return 0;
 
-    return _head->allocString(len);
+    return _head->allocString();
   }
 
-  virtual StringSlot* append(StringSlot* slot, char c) {
-    // TODO: this is slow as hell!!!!!!!!!!!!
-    for (Block* b = _head; b; b = b->next) {
-      if (!b->owns(slot)) continue;
-      if (b->canAlloc(1)) {
-        b->append(slot, c);
-        return slot;
-      }
-      if (addNewBlock(sizeof(StringSlot) + slot->size + 1)) {
-        StringSlot* newSlot = _head->allocString(slot->size + 1);
-        memcpy(newSlot->value, slot->value, slot->size);
-        newSlot->value[slot->size] = c;
-        b->freeString(slot);
-        return newSlot;
-      }
-      return 0;
-    }
+  virtual StringSlot* extendString(StringSlot* oldSlot) {
+    if (!addNewBlock(sizeof(StringSlot))) return 0;
 
-    return 0;
+    StringSlot* newSlot = _head->allocString();
+
+    memcpy(newSlot->value, oldSlot->value, oldSlot->size);
+    freeString(oldSlot);
+
+    return newSlot;
+  }
+
+  virtual void freezeString(StringSlot* slot) {
+    for (Block* b = _head; b; b = b->next) {
+      if (b->owns(slot)) {
+        b->freezeString(slot);
+      }
+    }
   }
 
   // Resets the memoryPool.

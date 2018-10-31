@@ -21,6 +21,10 @@ class StringBuilder {
     while (*s) append(*s++);
   }
 
+  void append(const char* s, size_t n) {
+    while (n-- > 0) append(*s++);
+  }
+
   void append(char c) {
     if (!_slot) return;
 
