@@ -44,7 +44,6 @@ class StaticMemoryPoolBase : public MemoryPool {
     StringSlot* s = allocRight<StringSlot>();
     if (!s) return 0;
 
-    alignNextAlloc();
     if (!canAlloc(n)) return 0;
 
     s->value = _left;
@@ -57,8 +56,6 @@ class StaticMemoryPoolBase : public MemoryPool {
   virtual StringSlot* allocExpandableString() {
     StringSlot* s = allocRight<StringSlot>();
     if (!s) return 0;
-
-    alignNextAlloc();
 
     s->value = _left;
     s->size = size_t(_right - _left);
@@ -118,16 +115,11 @@ class StaticMemoryPoolBase : public MemoryPool {
   ~StaticMemoryPoolBase() {}
 
   // Gets the current usage of the memoryPool in bytes
-  virtual size_t allocated_bytes() const {
-    return round_size_up(size_t(_left - _begin + _end - _right));
+  size_t allocated_bytes() const {
+    return size_t(_left - _begin + _end - _right);
   }
 
  private:
-  void alignNextAlloc() {
-    _left = reinterpret_cast<char*>(round_size_up(size_t(_left)));
-    // TODO: remove (no need to align strings)
-  }
-
   char *_begin, *_left, *_right, *_end;
   SlotCache<VariantSlot> _freeVariants;
   SlotCache<StringSlot> _freeStrings;

@@ -24,13 +24,13 @@ TEST_CASE("DynamicMemoryPool::allocFrozenString()") {
 
   SECTION("Alignment") {
     // make room for two but not three
-    DynamicMemoryPool tinyBuf(2 * JSON_STRING_SIZE(1));
+    DynamicMemoryPool tinyBuf(2 * sizeof(VariantSlot));
 
-    REQUIRE(isAligned(
-        tinyBuf.allocFrozenString(1)));  // this one is aligned by design
-    REQUIRE(isAligned(
-        tinyBuf.allocFrozenString(1)));  // this one fits in the first block
-    REQUIRE(isAligned(
-        tinyBuf.allocFrozenString(1)));  // this one requires a new block
+    REQUIRE(
+        isAligned(tinyBuf.allocVariant()));  // this one is aligned by design
+    REQUIRE(
+        isAligned(tinyBuf.allocVariant()));  // this one fits in the first block
+    REQUIRE(
+        isAligned(tinyBuf.allocVariant()));  // this one requires a new block
   }
 }

@@ -64,15 +64,5 @@ class MemoryPool {
   // If we add a virtual constructor the Arduino compiler will add malloc()
   // and free() to the binary, adding 706 useless bytes.
   ~MemoryPool() {}
-
-  // Preserve aligment if necessary
-  static FORCE_INLINE size_t round_size_up(size_t bytes) {
-#if ARDUINOJSON_ENABLE_ALIGNMENT
-    const size_t x = sizeof(void *) - 1;
-    return (bytes + x) & ~x;
-#else
-    return bytes;
-#endif
-  }
 };
 }  // namespace ARDUINOJSON_NAMESPACE
