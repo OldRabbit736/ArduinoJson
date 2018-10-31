@@ -160,8 +160,7 @@ class DynamicMemoryPoolBase : public MemoryPool {
   TAllocator _allocator;
   Block* _head;
   size_t _nextBlockCapacity;
-  SlotCache<VariantSlot> _cache;
-};  // namespace ARDUINOJSON_NAMESPACE
+};
 
 // Implements a MemoryPool with dynamic memory allocation.
 // You are strongly encouraged to consider using StaticMemoryPool which is much

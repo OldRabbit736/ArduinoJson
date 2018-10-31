@@ -43,7 +43,7 @@ class SlotCache {
 
  private:
   TSlot *_head;
-};  // namespace ARDUINOJSON_NAMESPACE
+};
 
 // Handle the memory management (done in derived classes) and calls the
 // parser. This abstract class is implemented by StaticMemoryPool which

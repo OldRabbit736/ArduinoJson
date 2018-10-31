@@ -15,6 +15,6 @@ namespace ARDUINOJSON_NAMESPACE {
 struct StringSlot {
   char *value;
   size_t size;
-  // struct StringSlot *next;
+  struct StringSlot *next;
 };
 }  // namespace ARDUINOJSON_NAMESPACE

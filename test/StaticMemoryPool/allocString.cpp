@@ -11,36 +11,43 @@ static const size_t poolCapacity = 64;
 static const size_t longestString = poolCapacity - sizeof(StringSlot);
 
 TEST_CASE("StaticMemoryPool::allocFrozenString()") {
-  StaticMemoryPool<poolCapacity> memoryPool;
+  StaticMemoryPool<poolCapacity> pool;
 
   SECTION("Returns different addresses") {
-    void *p1 = memoryPool.allocFrozenString(0);
-    void *p2 = memoryPool.allocFrozenString(0);
-    REQUIRE(p1 != p2);
+    void *a = pool.allocFrozenString(0);
+    void *b = pool.allocFrozenString(0);
+    REQUIRE(a != b);
   }
 
   SECTION("Returns NULL when full") {
-    memoryPool.allocFrozenString(longestString);
-    void *p = memoryPool.allocFrozenString(1);
+    pool.allocFrozenString(longestString);
+    void *p = pool.allocFrozenString(1);
     REQUIRE(0 == p);
   }
 
-  SECTION("Returns NULL when memoryPool is too small") {
-    void *p = memoryPool.allocFrozenString(longestString + 1);
+  SECTION("Returns NULL when pool is too small") {
+    void *p = pool.allocFrozenString(longestString + 1);
     REQUIRE(0 == p);
   }
 
   SECTION("Returns aligned pointers") {
-    for (size_t size = 1; size <= sizeof(void *); size++) {
-      void *p = memoryPool.allocFrozenString(1);
-      REQUIRE(isAligned(p));
-    }
+    REQUIRE(isAligned(pool.allocFrozenString(1)));
+    REQUIRE(isAligned(pool.allocFrozenString(1)));
   }
 
   SECTION("Returns same address after clear()") {
-    void *p1 = memoryPool.allocFrozenString(1);
-    memoryPool.clear();
-    void *p2 = memoryPool.allocFrozenString(1);
-    REQUIRE(p1 == p2);
+    StringSlot *a = pool.allocFrozenString(1);
+    pool.clear();
+    StringSlot *b = pool.allocFrozenString(1);
+
+    REQUIRE(a == b);
+  }
+
+  SECTION("Returns same address after freeString()") {
+    StringSlot *a = pool.allocFrozenString(1);
+    pool.freeString(a);
+    StringSlot *b = pool.allocFrozenString(1);
+
+    REQUIRE(a == b);
   }
 }
