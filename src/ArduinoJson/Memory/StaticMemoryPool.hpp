@@ -8,7 +8,6 @@
 #include "../Strings/StringInMemoryPool.hpp"
 #include "Alignment.hpp"
 #include "MemoryPool.hpp"
-#include "StringBuilder.hpp"
 
 namespace ARDUINOJSON_NAMESPACE {
 
@@ -76,10 +75,6 @@ class StaticMemoryPoolBase : public MemoryPool {
   void clear() {
     _left = _begin;
     _right = _end;
-  }
-
-  StringBuilder startString() {
-    return StringBuilder(this);
   }
 
   bool canAlloc(size_t bytes) const {

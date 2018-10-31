@@ -8,7 +8,7 @@ add_executable(DynamicMemoryPoolTests
 	blocks.cpp
 	no_memory.cpp
 	size.cpp
-	startString.cpp
+	StringBuilder.cpp
 )
 
 target_link_libraries(DynamicMemoryPoolTests catch)

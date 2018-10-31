@@ -8,7 +8,6 @@
 #include "Alignment.hpp"
 #include "MemoryPool.hpp"
 #include "StaticMemoryPool.hpp"
-#include "StringBuilder.hpp"
 
 #include <stdlib.h>  // malloc, free
 
@@ -136,10 +135,6 @@ class DynamicMemoryPoolBase : public MemoryPool {
       currentBlock = nextBlock;
     }
     _head = 0;
-  }
-
-  StringBuilder startString() {
-    return StringBuilder(this);
   }
 
   size_t blockCount() const {

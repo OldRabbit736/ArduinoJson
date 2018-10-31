@@ -3,6 +3,7 @@
 // MIT License
 
 #include <ArduinoJson/Memory/DynamicMemoryPool.hpp>
+#include <ArduinoJson/Memory/StringBuilder.hpp>
 #include <catch.hpp>
 
 using namespace ARDUINOJSON_NAMESPACE;
@@ -11,7 +12,7 @@ TEST_CASE("DynamicMemoryPool::startString()") {
   SECTION("WorksWhenBufferIsBigEnough") {
     DynamicMemoryPool memoryPool(JSON_STRING_SIZE(8));
 
-    StringBuilder str = memoryPool.startString();
+    StringBuilder str(&memoryPool);
     str.append("abcdefg");
 
     REQUIRE(memoryPool.blockCount() == 1);
@@ -21,7 +22,7 @@ TEST_CASE("DynamicMemoryPool::startString()") {
   SECTION("GrowsWhenBufferIsTooSmall") {
     DynamicMemoryPool memoryPool(JSON_STRING_SIZE(8));
 
-    StringBuilder str = memoryPool.startString();
+    StringBuilder str(&memoryPool);
     str.append("abcdefghABC");
 
     REQUIRE(memoryPool.blockCount() == 2);
@@ -31,7 +32,7 @@ TEST_CASE("DynamicMemoryPool::startString()") {
   SECTION("SizeIncreases") {
     DynamicMemoryPool memoryPool(JSON_STRING_SIZE(5));
 
-    StringBuilder str = memoryPool.startString();
+    StringBuilder str(&memoryPool);
     str.append('h');
     str.complete();
 

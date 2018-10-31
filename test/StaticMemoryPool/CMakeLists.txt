@@ -6,7 +6,7 @@ add_executable(StaticMemoryPoolTests
 	allocVariant.cpp
 	allocString.cpp
 	size.cpp
-	startString.cpp
+	StringBuilder.cpp
 )
 
 target_link_libraries(StaticMemoryPoolTests catch)
