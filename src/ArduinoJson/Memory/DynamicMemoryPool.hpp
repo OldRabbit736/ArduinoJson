@@ -83,21 +83,32 @@ class DynamicMemoryPoolBase : public MemoryPool {
     }
   }
 
-  virtual StringSlot* allocString() {
+  virtual StringSlot* allocFrozenString(size_t n) {
     for (Block* b = _head; b; b = b->next) {
-      StringSlot* s = b->allocString();
+      StringSlot* s = b->allocFrozenString(n);
+      if (s) return s;
+    }
+
+    if (!addNewBlock(sizeof(StringSlot) + n)) return 0;
+
+    return _head->allocFrozenString(n);
+  }
+
+  virtual StringSlot* allocExpandableString() {
+    for (Block* b = _head; b; b = b->next) {
+      StringSlot* s = b->allocExpandableString();
       if (s) return s;
     }
 
     if (!addNewBlock(sizeof(StringSlot))) return 0;
 
-    return _head->allocString();
+    return _head->allocExpandableString();
   }
 
-  virtual StringSlot* extendString(StringSlot* oldSlot) {
+  virtual StringSlot* expandString(StringSlot* oldSlot) {
     if (!addNewBlock(sizeof(StringSlot))) return 0;
 
-    StringSlot* newSlot = _head->allocString();
+    StringSlot* newSlot = _head->allocExpandableString();
 
     memcpy(newSlot->value, oldSlot->value, oldSlot->size);
     freeString(oldSlot);

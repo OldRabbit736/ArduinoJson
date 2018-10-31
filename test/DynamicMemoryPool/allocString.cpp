@@ -14,11 +14,11 @@ static bool isAligned(void* ptr) {
   return (addr & mask) == 0;
 }
 
-TEST_CASE("DynamicMemoryPool::allocString()") {
+TEST_CASE("DynamicMemoryPool::allocFrozenString()") {
   SECTION("Returns different pointers") {
     DynamicMemoryPool memoryPool;
-    void* p1 = memoryPool.allocString(1);
-    void* p2 = memoryPool.allocString(2);
+    void* p1 = memoryPool.allocFrozenString(1);
+    void* p2 = memoryPool.allocFrozenString(2);
     REQUIRE(p1 != p2);
   }
 
@@ -26,11 +26,11 @@ TEST_CASE("DynamicMemoryPool::allocString()") {
     // make room for two but not three
     DynamicMemoryPool tinyBuf(2 * JSON_STRING_SIZE(1));
 
-    REQUIRE(
-        isAligned(tinyBuf.allocString(1)));  // this one is aligned by design
-    REQUIRE(
-        isAligned(tinyBuf.allocString(1)));  // this one fits in the first block
-    REQUIRE(
-        isAligned(tinyBuf.allocString(1)));  // this one requires a new block
+    REQUIRE(isAligned(
+        tinyBuf.allocFrozenString(1)));  // this one is aligned by design
+    REQUIRE(isAligned(
+        tinyBuf.allocFrozenString(1)));  // this one fits in the first block
+    REQUIRE(isAligned(
+        tinyBuf.allocFrozenString(1)));  // this one requires a new block
   }
 }
