@@ -74,6 +74,8 @@ inline void slotFree(VariantSlot* var, MemoryPool* pool) {
     case JSON_OWNED_STRING:
       pool->freeString(v.content.asOwnedString);
       break;
+    default:
+      break;
   }
 
   if (!v.keyIsStatic) pool->freeString(var->ownedKey);

@@ -157,9 +157,9 @@ class StaticMemoryPoolBase : public MemoryPool {
   }
 
   void compactLeftSide(char* holeAddress, size_t holeSize) {
-    memmove(holeAddress,             // where the hole begun
-            holeAddress + holeSize,  // where the hole ended
-            _left - holeAddress);    // everything after the hole
+    memmove(holeAddress,                   // where the hole begun
+            holeAddress + holeSize,        // where the hole ended
+            size_t(_left - holeAddress));  // everything after the hole
     _left -= holeSize;
     _usedString.forEach(UpdateStringSlotAddress(holeAddress, holeSize));
   }
