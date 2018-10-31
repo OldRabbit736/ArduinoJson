@@ -73,13 +73,31 @@ TEST_CASE("StaticMemoryPool::allocFrozenString()") {
 
     REQUIRE(a != NULL);
   }
+}
 
-  SECTION("Can use full capacity after freeString()") {
+TEST_CASE("StaticMemoryPool::freeString()") {
+  StaticMemoryPool<poolCapacity> pool;
+
+  SECTION("Restores full capacity") {
     StringSlot *a = pool.allocFrozenString(longestString);
     pool.freeString(a);
 
     StringSlot *b = pool.allocFrozenString(longestString);
 
     REQUIRE(b != NULL);
+    REQUIRE(b->size == longestString);
+  }
+
+  SECTION("Move strings") {
+    StringSlot *a = pool.allocFrozenString(6);
+    strcpy(a->value, "hello");
+
+    StringSlot *b = pool.allocFrozenString(7);
+    strcpy(b->value, "world!");
+    pool.freeString(a);
+
+    REQUIRE(b->size == 7);
+    REQUIRE(b->value == std::string("world!"));
+    REQUIRE(a->value == b->value);
   }
 }

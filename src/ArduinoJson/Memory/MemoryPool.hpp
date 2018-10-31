@@ -31,6 +31,27 @@ class SlotCache {
     _head = slot;
   }
 
+  void remove(TSlot *slot) {
+    if (_head == slot) {
+      _head = slot->next;
+      return;
+    }
+
+    for (TSlot *s = _head; s; s = s->next) {
+      if (s->next == slot) {
+        s->next = slot->next;
+        return;
+      }
+    }
+  }
+
+  template <typename Functor>
+  void forEach(const Functor &f) {
+    for (TSlot *s = _head; s; s = s->next) {
+      f(s);
+    }
+  }
+
   size_t size() const {
     size_t sum = 0;
     for (TSlot *s = _head; s; s = s->next) sum += sizeof(TSlot);

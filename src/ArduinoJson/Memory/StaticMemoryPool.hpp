@@ -20,6 +20,20 @@ namespace ARDUINOJSON_NAMESPACE {
 //             _left          _right
 
 class StaticMemoryPoolBase : public MemoryPool {
+  class UpdateStringSlotAddress {
+   public:
+    UpdateStringSlotAddress(const char* address, size_t offset)
+        : _address(address), _offset(offset) {}
+
+    void operator()(StringSlot* slot) const {
+      if (slot->value > _address) slot->value -= _offset;
+    }
+
+   private:
+    const char* _address;
+    size_t _offset;
+  };
+
  public:
   // Gets the capacity of the memoryPool in bytes
   size_t capacity() const {
@@ -41,8 +55,13 @@ class StaticMemoryPoolBase : public MemoryPool {
   }
 
   virtual void freeString(StringSlot* slot) {
+    _usedString.remove(slot);
     _freeStrings.push(slot);
     _left -= slot->size;
+    memmove(slot->value,               // where the string begun
+            slot->value + slot->size,  // where the string ended
+            _left - slot->value);      // everything after the string
+    _usedString.forEach(UpdateStringSlotAddress(slot->value, slot->size));
   }
 
   virtual StringSlot* allocFrozenString(size_t n) {
@@ -53,6 +72,7 @@ class StaticMemoryPoolBase : public MemoryPool {
     s->value = _left;
     s->size = n;
     _left += n;
+    _usedString.push(s);
 
     return s;
   }
@@ -63,6 +83,8 @@ class StaticMemoryPoolBase : public MemoryPool {
 
     s->value = _left;
     s->size = size_t(_right - _left);
+    _usedString.push(s);
+
     return s;
   }
 
@@ -130,6 +152,7 @@ class StaticMemoryPoolBase : public MemoryPool {
   char *_begin, *_left, *_right, *_end;
   SlotCache<VariantSlot> _freeVariants;
   SlotCache<StringSlot> _freeStrings;
+  SlotCache<StringSlot> _usedString;
 };
 
 #if defined(__clang__)
