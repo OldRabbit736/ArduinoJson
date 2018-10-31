@@ -5,6 +5,7 @@
 #pragma once
 
 #include "../Strings/StringInMemoryPool.hpp"
+#include "Alignment.hpp"
 #include "MemoryPool.hpp"
 #include "StaticMemoryPool.hpp"
 #include "StringBuilder.hpp"
@@ -151,6 +152,7 @@ class DynamicMemoryPoolBase : public MemoryPool {
   bool addNewBlock(size_t minCapacity) {
     size_t capacity = _nextBlockCapacity;
     if (minCapacity > capacity) capacity = minCapacity;
+    capacity = addPadding(capacity);
     size_t bytes = sizeof(Block) + capacity;
     char* p = reinterpret_cast<char*>(_allocator.allocate(bytes));
     if (!p) return false;
