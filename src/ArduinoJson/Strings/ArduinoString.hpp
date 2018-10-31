@@ -16,7 +16,7 @@ class ArduinoString {
   StringSlot* save(TMemoryPool* memoryPool) const {
     if (isNull()) return NULL;
     size_t n = _str->length() + 1;
-    StringSlot* slot = memoryPool->allocString(n);
+    StringSlot* slot = memoryPool->allocFrozenString(n);
     if (slot) memcpy(slot->value, _str->c_str(), n);
     return slot;
   }

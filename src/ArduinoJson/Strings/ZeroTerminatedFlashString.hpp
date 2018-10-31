@@ -24,7 +24,7 @@ class ZeroTerminatedFlashString {
   StringSlot* save(TMemoryPool* memoryPool) const {
     if (!_str) return NULL;
     size_t n = size() + 1;  // copy the terminator
-    StringSlot* slot = memoryPool->allocString(n);
+    StringSlot* slot = memoryPool->allocFrozenString(n);
     if (slot) memcpy_P(slot->value, reinterpret_cast<const char*>(_str), n);
     return slot->value;
   }

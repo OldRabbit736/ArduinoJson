@@ -25,7 +25,7 @@ class FixedSizeRamString {
   template <typename TMemoryPool>
   StringSlot* save(TMemoryPool* memoryPool) const {
     if (!_str) return NULL;
-    StringSlot* slot = memoryPool->allocString(_size);
+    StringSlot* slot = memoryPool->allocFrozenString(_size);
     if (slot) memcpy(slot->value, _str, _size);
     return slot;
   }

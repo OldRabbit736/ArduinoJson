@@ -17,7 +17,7 @@ class ZeroTerminatedRamString : public ZeroTerminatedRamStringConst {
   StringSlot* save(TMemoryPool* memoryPool) const {
     if (!_str) return NULL;
     size_t n = size() + 1;
-    StringSlot* slot = memoryPool->allocString(n);
+    StringSlot* slot = memoryPool->allocFrozenString(n);
     if (slot) memcpy(slot->value, _str, n);
     return slot;
   }
