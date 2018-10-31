@@ -75,6 +75,7 @@ class StaticMemoryPoolBase : public MemoryPool {
   void clear() {
     _left = _begin;
     _right = _end;
+    _freeVariants.clear();
   }
 
   bool canAlloc(size_t bytes) const {

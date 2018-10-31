@@ -5,6 +5,7 @@
 add_executable(StaticMemoryPoolTests 
 	allocVariant.cpp
 	allocString.cpp
+	clear.cpp
 	size.cpp
 	StringBuilder.cpp
 )

@@ -45,10 +45,4 @@ TEST_CASE("StaticMemoryPool::size()") {
     memoryPool.allocVariant();
     REQUIRE(poolCapacity == memoryPool.size());
   }
-
-  SECTION("Goes back to zero after clear()") {
-    memoryPool.allocVariant();
-    memoryPool.clear();
-    REQUIRE(0 == memoryPool.size());
-  }
 }

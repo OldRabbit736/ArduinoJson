@@ -37,6 +37,10 @@ class SlotCache {
     return sum;
   }
 
+  void clear() {
+    _head = 0;
+  }
+
  private:
   TSlot *_head;
 };  // namespace ARDUINOJSON_NAMESPACE
