@@ -52,17 +52,12 @@ class StaticMemoryPoolBase : public MemoryPool {
   }
 
   virtual void freeVariant(VariantSlot* slot) {
-    _freeVariants.push(slot);
+    freeVariantSlot(slot);
   }
 
   virtual void freeString(StringSlot* slot) {
-    _usedString.remove(slot);
-    _freeStrings.push(slot);
-    _left -= slot->size;
-    memmove(slot->value,               // where the string begun
-            slot->value + slot->size,  // where the string ended
-            _left - slot->value);      // everything after the string
-    _usedString.forEach(UpdateStringSlotAddress(slot->value, slot->size));
+    freeStringSlot(slot);
+    compactLeftSide(slot->value, slot->size);
   }
 
   virtual StringSlot* allocFrozenString(size_t n) {
@@ -148,6 +143,23 @@ class StaticMemoryPoolBase : public MemoryPool {
     StringSlot* s = _freeStrings.pop();
     if (s) return s;
     return allocRight<StringSlot>();
+  }
+
+  void freeVariantSlot(VariantSlot* slot) {
+    _freeVariants.push(slot);
+  }
+
+  void freeStringSlot(StringSlot* slot) {
+    _usedString.remove(slot);
+    _freeStrings.push(slot);
+  }
+
+  void compactLeftSide(char* holeAddress, size_t holeSize) {
+    memmove(holeAddress,             // where the hole begun
+            holeAddress + holeSize,  // where the hole ended
+            _left - holeAddress);    // everything after the hole
+    _left -= holeSize;
+    _usedString.forEach(UpdateStringSlotAddress(holeAddress, holeSize));
   }
 
   char *_begin, *_left, *_right, *_end;
