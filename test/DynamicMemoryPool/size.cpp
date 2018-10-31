@@ -21,13 +21,6 @@ TEST_CASE("DynamicMemoryPool::size()") {
     REQUIRE(memoryPool.size() == 2 * JSON_STRING_SIZE(0));
   }
 
-  SECTION("Goes back to 0 after clear()") {
-    memoryPool.allocExpandableString();
-    memoryPool.allocVariant();
-    memoryPool.clear();
-    REQUIRE(0 == memoryPool.size());
-  }
-
   SECTION("Increases after allocVariant()") {
     memoryPool.allocVariant();
     REQUIRE(sizeof(VariantSlot) == memoryPool.size());
