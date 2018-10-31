@@ -24,4 +24,13 @@ TEST_CASE("StaticMemoryPool::allocVariant()") {
 
     REQUIRE(s1 == s2);
   }
+
+  SECTION("Returns aligned pointers") {
+    // make room for two
+    // pass an uneven capacity
+    StaticMemoryPool<2 * sizeof(VariantSlot) + 1> pool;
+
+    REQUIRE(isAligned(pool.allocVariant()));
+    REQUIRE(isAligned(pool.allocVariant()));
+  }
 }

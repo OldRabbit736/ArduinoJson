@@ -10,12 +10,6 @@ using namespace ARDUINOJSON_NAMESPACE;
 static const size_t poolCapacity = 64;
 static const size_t longestString = poolCapacity - sizeof(StringSlot);
 
-static bool isAligned(void *ptr) {
-  const size_t mask = sizeof(void *) - 1;
-  size_t addr = reinterpret_cast<size_t>(ptr);
-  return (addr & mask) == 0;
-}
-
 TEST_CASE("StaticMemoryPool::allocFrozenString()") {
   StaticMemoryPool<poolCapacity> memoryPool;
 

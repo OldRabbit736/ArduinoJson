@@ -18,10 +18,10 @@ TEST_CASE("StaticMemoryPool::startString()") {
   }
 
   SECTION("ReturnsNullWhenTooSmall") {
-    StaticMemoryPool<JSON_STRING_SIZE(7) - 1> memoryPool;
+    StaticMemoryPool<1> memoryPool;
 
     StringBuilder str = memoryPool.startString();
-    str.append("hello!!");
+    str.append("hello!!!");
 
     REQUIRE(str.complete().isNull());
   }

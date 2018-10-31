@@ -6,6 +6,7 @@
 
 #include "../Polyfills/mpl/max.hpp"
 #include "../Strings/StringInMemoryPool.hpp"
+#include "Alignment.hpp"
 #include "MemoryPool.hpp"
 #include "StringBuilder.hpp"
 
@@ -140,7 +141,8 @@ class StaticMemoryPoolBase : public MemoryPool {
 // bytes.
 template <size_t CAPACITY>
 class StaticMemoryPool : public StaticMemoryPoolBase {
-  static const size_t ACTUAL_CAPACITY = Max<1, CAPACITY>::value;
+  static const size_t ACTUAL_CAPACITY =
+      AddPadding<Max<1, CAPACITY>::value>::value;
 
  public:
   explicit StaticMemoryPool()
