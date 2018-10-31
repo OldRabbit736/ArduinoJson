@@ -13,21 +13,37 @@ class StringBuilder {
  public:
   typedef StringInMemoryPool StringType;
 
-  explicit StringBuilder(MemoryPool* parent) : _parent(parent) {
-    _slot = _parent->allocString(0);
+  explicit StringBuilder(MemoryPool* parent) : _parent(parent), _size(0) {
+    _slot = _parent->allocString();
+  }
+
+  void append(const char* s) {
+    while (*s) append(*s++);
   }
 
   void append(char c) {
-    _slot = _parent->append(_slot, c);
+    if (!_slot) return;
+
+    if (_size >= _slot->size) {
+      _slot = _parent->extendString(_slot);
+      if (!_slot) return;
+    }
+
+    _slot->value[_size++] = c;
   }
 
   StringType complete() {
-    _slot = _parent->append(_slot, 0);
+    append('\0');
+    if (_slot) {
+      _slot->size = _size;
+      _parent->freezeString(_slot);
+    }
     return _slot;
   }
 
  private:
   MemoryPool* _parent;
+  size_t _size;
   StringSlot* _slot;
 };
 

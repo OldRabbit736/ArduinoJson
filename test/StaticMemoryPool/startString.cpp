@@ -12,11 +12,7 @@ TEST_CASE("StaticMemoryPool::startString()") {
     StaticMemoryPool<JSON_STRING_SIZE(6)> memoryPool;
 
     StringBuilder str = memoryPool.startString();
-    str.append('h');
-    str.append('e');
-    str.append('l');
-    str.append('l');
-    str.append('o');
+    str.append("hello");
 
     REQUIRE(str.complete().equals("hello"));
   }
@@ -25,13 +21,7 @@ TEST_CASE("StaticMemoryPool::startString()") {
     StaticMemoryPool<JSON_STRING_SIZE(7) - 1> memoryPool;
 
     StringBuilder str = memoryPool.startString();
-    str.append('h');
-    str.append('e');
-    str.append('l');
-    str.append('l');
-    str.append('o');
-    str.append('!');
-    str.append('!');
+    str.append("hello!!");
 
     REQUIRE(str.complete().isNull());
   }

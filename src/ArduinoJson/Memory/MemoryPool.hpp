@@ -48,8 +48,9 @@ class MemoryPool {
  public:
   // Allocates n bytes in the MemoryPool.
   // Return a pointer to the allocated memory or NULL if allocation fails.
-  virtual StringSlot *allocString(size_t size) = 0;
-  virtual StringSlot *append(StringSlot *, char c) = 0;
+  virtual StringSlot *allocString() = 0;
+  virtual StringSlot *extendString(StringSlot *) = 0;
+  virtual void freezeString(StringSlot *) = 0;
   virtual void freeString(StringSlot *) {}
 
   virtual VariantSlot *allocVariant() = 0;

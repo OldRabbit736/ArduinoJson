@@ -40,24 +40,23 @@ class StaticMemoryPoolBase : public MemoryPool {
     _freeVariants.push(slot);
   }
 
-  virtual StringSlot* allocString(size_t len) {
+  virtual StringSlot* allocString() {
     StringSlot* s = allocRight<StringSlot>();
     if (!s) return 0;
 
     alignNextAlloc();
-    if (!canAlloc(len)) return 0;
 
-    s->value = doAlloc(len);
-    s->size = len;
+    s->value = _left;
+    s->size = size_t(_right - _left);
     return s;
   }
 
-  virtual StringSlot* append(StringSlot* slot, char c) {
-    if (!slot) return 0;
-    if (!canAlloc(1)) return 0;
-    doAlloc(1);
-    slot->value[slot->size++] = c;
-    return slot;
+  virtual StringSlot* extendString(StringSlot*) {
+    return 0;
+  }
+
+  virtual void freezeString(StringSlot* slot) {
+    _left = slot->value + slot->size;
   }
 
   // Resets the memoryPool.
@@ -113,12 +112,6 @@ class StaticMemoryPoolBase : public MemoryPool {
   void alignNextAlloc() {
     _left = reinterpret_cast<char*>(round_size_up(size_t(_left)));
     // TODO: remove (no need to align strings)
-  }
-
-  char* doAlloc(size_t bytes) {
-    char* p = _left;
-    _left += bytes;
-    return p;
   }
 
   char *_begin, *_left, *_right, *_end;

@@ -9,6 +9,7 @@ using namespace ARDUINOJSON_NAMESPACE;
 
 static const size_t poolCapacity = 64;
 static const size_t longestString = poolCapacity - sizeof(StringSlot);
+static const size_t maxVariants = poolCapacity / sizeof(VariantSlot);
 
 TEST_CASE("StaticMemoryPool::size()") {
   StaticMemoryPool<poolCapacity> memoryPool;
@@ -22,9 +23,9 @@ TEST_CASE("StaticMemoryPool::size()") {
   }
 
   SECTION("Increases after allocString()") {
-    memoryPool.allocString(0);
+    memoryPool.allocString();
     REQUIRE(memoryPool.size() == JSON_STRING_SIZE(0));
-    memoryPool.allocString(0);
+    memoryPool.allocString();
     REQUIRE(memoryPool.size() == 2 * JSON_STRING_SIZE(0));
   }
 
@@ -39,18 +40,13 @@ TEST_CASE("StaticMemoryPool::size()") {
   // }
 
   SECTION("Doesn't grow when memoryPool is full") {
-    memoryPool.allocString(longestString);
-    memoryPool.allocString(1);
+    for (size_t i = 0; i < maxVariants; i++) memoryPool.allocVariant();
+    REQUIRE(poolCapacity == memoryPool.size());
+    memoryPool.allocVariant();
     REQUIRE(poolCapacity == memoryPool.size());
   }
 
-  SECTION("Does't grow when memoryPool is too small for alloc") {
-    memoryPool.allocString(longestString + 1);
-    REQUIRE(JSON_STRING_SIZE(0) <= memoryPool.size());
-  }
-
   SECTION("Goes back to zero after clear()") {
-    memoryPool.allocString(1);
     memoryPool.allocVariant();
     memoryPool.clear();
     REQUIRE(0 == memoryPool.size());

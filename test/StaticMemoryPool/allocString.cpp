@@ -20,14 +20,9 @@ TEST_CASE("StaticMemoryPool::allocString()") {
   StaticMemoryPool<poolCapacity> memoryPool;
 
   SECTION("Returns different addresses") {
-    void *p1 = memoryPool.allocString(1);
-    void *p2 = memoryPool.allocString(1);
+    void *p1 = memoryPool.allocString();
+    void *p2 = memoryPool.allocString();
     REQUIRE(p1 != p2);
-  }
-
-  SECTION("Returns non-NULL when using full capacity") {
-    void *p = memoryPool.allocString(longestString);
-    REQUIRE(0 != p);
   }
 
   SECTION("Returns NULL when full") {
@@ -37,7 +32,7 @@ TEST_CASE("StaticMemoryPool::allocString()") {
   }
 
   SECTION("Returns NULL when memoryPool is too small") {
-    void *p = memoryPool.allocString(longestString+1);
+    void *p = memoryPool.allocString(longestString + 1);
     REQUIRE(0 == p);
   }
 
