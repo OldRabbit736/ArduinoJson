@@ -41,6 +41,12 @@ TEST_CASE("JsonObject::remove()") {
       obj.remove("c");
       REQUIRE(doc.memoryUsage() == JSON_OBJECT_SIZE(2));
     }
+
+    SECTION("Release key string memory") {
+      obj[std::string("Copy me!")] = 42;
+      obj.remove("Copy me!");
+      REQUIRE(doc.memoryUsage() == JSON_OBJECT_SIZE(3));
+    }
   }
 
   SECTION("remove(iterator)") {

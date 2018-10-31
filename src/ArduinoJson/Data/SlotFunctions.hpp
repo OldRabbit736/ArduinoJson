@@ -76,6 +76,8 @@ inline void slotFree(VariantSlot* var, MemoryPool* pool) {
       break;
   }
 
+  if (!v.keyIsStatic) pool->freeString(var->ownedKey);
+
   pool->freeVariant(var);
 }
 }  // namespace ARDUINOJSON_NAMESPACE
