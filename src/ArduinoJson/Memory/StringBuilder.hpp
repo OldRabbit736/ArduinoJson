@@ -14,7 +14,7 @@ class StringBuilder {
   typedef StringInMemoryPool StringType;
 
   explicit StringBuilder(MemoryPool* parent) : _parent(parent), _size(0) {
-    _slot = _parent->allocString();
+    _slot = _parent->allocExpandableString();
   }
 
   void append(const char* s) {
@@ -29,7 +29,7 @@ class StringBuilder {
     if (!_slot) return;
 
     if (_size >= _slot->size) {
-      _slot = _parent->extendString(_slot);
+      _slot = _parent->expandString(_slot);
       if (!_slot) return;
     }
 

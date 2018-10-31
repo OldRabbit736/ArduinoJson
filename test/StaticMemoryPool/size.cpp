@@ -22,16 +22,16 @@ TEST_CASE("StaticMemoryPool::size()") {
     REQUIRE(0 == memoryPool.size());
   }
 
-  SECTION("Increases after allocString()") {
-    memoryPool.allocString();
+  SECTION("Increases after allocFrozenString()") {
+    memoryPool.allocFrozenString(0);
     REQUIRE(memoryPool.size() == JSON_STRING_SIZE(0));
-    memoryPool.allocString();
+    memoryPool.allocFrozenString(0);
     REQUIRE(memoryPool.size() == 2 * JSON_STRING_SIZE(0));
   }
 
   // SECTION("Decreases after freeString()") {
-  //   StringSlot* s1 = memoryPool.allocString(0);
-  //   StringSlot* s2 = memoryPool.allocString(1);
+  //   StringSlot* s1 = memoryPool.allocFrozenString(0);
+  //   StringSlot* s2 = memoryPool.allocFrozenString(1);
 
   //   memoryPool.freeString(s1);
   //   REQUIRE(memoryPool.size() == JSON_STRING_SIZE(0));

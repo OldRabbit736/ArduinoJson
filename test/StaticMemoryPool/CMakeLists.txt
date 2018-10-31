@@ -4,7 +4,7 @@
 
 add_executable(StaticMemoryPoolTests 
 	allocVariant.cpp
-	# allocString.cpp
+	allocString.cpp
 	size.cpp
 	startString.cpp
 )

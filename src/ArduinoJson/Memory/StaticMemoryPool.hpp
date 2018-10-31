@@ -40,7 +40,21 @@ class StaticMemoryPoolBase : public MemoryPool {
     _freeVariants.push(slot);
   }
 
-  virtual StringSlot* allocString() {
+  virtual StringSlot* allocFrozenString(size_t n) {
+    StringSlot* s = allocRight<StringSlot>();
+    if (!s) return 0;
+
+    alignNextAlloc();
+    if (!canAlloc(n)) return 0;
+
+    s->value = _left;
+    s->size = n;
+    _left += n;
+
+    return s;
+  }
+
+  virtual StringSlot* allocExpandableString() {
     StringSlot* s = allocRight<StringSlot>();
     if (!s) return 0;
 
@@ -51,7 +65,7 @@ class StaticMemoryPoolBase : public MemoryPool {
     return s;
   }
 
-  virtual StringSlot* extendString(StringSlot*) {
+  virtual StringSlot* expandString(StringSlot*) {
     return 0;
   }
 
