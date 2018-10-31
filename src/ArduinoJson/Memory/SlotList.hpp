@@ -24,18 +24,20 @@ class SlotList {
     _head = slot;
   }
 
-  void remove(TSlot *slot) {
+  bool remove(TSlot *slot) {
     if (_head == slot) {
       _head = slot->next;
-      return;
+      return true;
     }
 
     for (TSlot *s = _head; s; s = s->next) {
       if (s->next == slot) {
         s->next = slot->next;
-        return;
+        return true;
       }
     }
+
+    return false;
   }
 
   template <typename Functor>

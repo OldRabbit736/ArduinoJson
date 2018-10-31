@@ -9,6 +9,8 @@ using namespace ARDUINOJSON_NAMESPACE;
 
 static const size_t poolCapacity = 64;
 static const size_t longestString = poolCapacity - sizeof(StringSlot);
+static const size_t longestStringPer4 =
+    (poolCapacity - sizeof(StringSlot) * 4) / 4;
 
 TEST_CASE("StaticMemoryPool::allocFrozenString()") {
   StaticMemoryPool<poolCapacity> pool;
@@ -79,8 +81,17 @@ TEST_CASE("StaticMemoryPool::freeString()") {
   StaticMemoryPool<poolCapacity> pool;
 
   SECTION("Restores full capacity") {
-    StringSlot *a = pool.allocFrozenString(longestString);
-    pool.freeString(a);
+    StringSlot *slots[4];
+    for (int i = 0; i < 4; i++) {
+      slots[i] = pool.allocFrozenString(longestStringPer4);
+      REQUIRE(slots[i] != NULL);
+    }
+
+    // In random order
+    pool.freeString(slots[2]);
+    pool.freeString(slots[0]);
+    pool.freeString(slots[1]);
+    pool.freeString(slots[3]);
 
     StringSlot *b = pool.allocFrozenString(longestString);
 

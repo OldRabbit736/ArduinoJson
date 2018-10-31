@@ -58,6 +58,7 @@ class StaticMemoryPoolBase : public MemoryPool {
   virtual void freeString(StringSlot* slot) {
     freeStringSlot(slot);
     compactLeftSide(slot->value, slot->size);
+    compactRightSide();
   }
 
   virtual StringSlot* allocFrozenString(size_t n) {
@@ -160,6 +161,12 @@ class StaticMemoryPoolBase : public MemoryPool {
             _left - holeAddress);    // everything after the hole
     _left -= holeSize;
     _usedString.forEach(UpdateStringSlotAddress(holeAddress, holeSize));
+  }
+
+  void compactRightSide() {
+    while (_freeStrings.remove(reinterpret_cast<StringSlot*>(_right))) {
+      _right += sizeof(StringSlot);
+    }
   }
 
   char *_begin, *_left, *_right, *_end;
