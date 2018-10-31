@@ -8,6 +8,7 @@
 #include "../Strings/StringInMemoryPool.hpp"
 #include "Alignment.hpp"
 #include "MemoryPool.hpp"
+#include "SlotList.hpp"
 
 namespace ARDUINOJSON_NAMESPACE {
 
@@ -150,9 +151,9 @@ class StaticMemoryPoolBase : public MemoryPool {
   }
 
   char *_begin, *_left, *_right, *_end;
-  SlotCache<VariantSlot> _freeVariants;
-  SlotCache<StringSlot> _freeStrings;
-  SlotCache<StringSlot> _usedString;
+  SlotList<VariantSlot> _freeVariants;
+  SlotList<StringSlot> _freeStrings;
+  SlotList<StringSlot> _usedString;
 };
 
 #if defined(__clang__)
