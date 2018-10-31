@@ -232,7 +232,9 @@ inline bool variantCopy(JsonVariantData* dst, const JsonVariantData* src,
                      src->content.asRaw.size),
           pool);
     default:
-      *dst = *src;
+      // caution: don't override keyIsStatic
+      dst->type = src->type;
+      dst->content = src->content;
       return true;
   }
 }
