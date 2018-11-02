@@ -20,8 +20,8 @@ TEST_CASE("StaticMemoryPool::allocFrozenString()") {
   }
 
   SECTION("Returns a StringSlot of the right size") {
-    StringSlot *s = pool.allocFrozenString(42);
-    REQUIRE(s->size == 42);
+    StringSlot *s = pool.allocFrozenString(12);
+    REQUIRE(s->size == 12);
   }
 
   SECTION("Returns NULL when full") {
@@ -75,7 +75,7 @@ TEST_CASE("StaticMemoryPool::allocFrozenString()") {
 }
 
 TEST_CASE("StaticMemoryPool::freeString()") {
-  const size_t poolCapacity = 256;
+  const size_t poolCapacity = 512;
   const size_t longestString = poolCapacity - sizeof(StringSlot);
   StaticMemoryPool<poolCapacity> pool;
 
