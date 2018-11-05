@@ -30,13 +30,24 @@ TEST_CASE("DynamicMemoryPool::size()") {
   }
 
   SECTION("Decreases after freeVariant()") {
-    VariantSlot* s1 = memoryPool.allocVariant();
-    VariantSlot* s2 = memoryPool.allocVariant();
+    VariantSlot* a = memoryPool.allocVariant();
+    VariantSlot* b = memoryPool.allocVariant();
 
-    memoryPool.freeVariant(s1);
+    memoryPool.freeVariant(b);
     REQUIRE(sizeof(VariantSlot) == memoryPool.size());
 
-    memoryPool.freeVariant(s2);
+    memoryPool.freeVariant(a);
     REQUIRE(0 == memoryPool.size());
+  }
+
+  SECTION("Decreases after freeString()") {
+    StringSlot* a = memoryPool.allocFrozenString(5);
+    StringSlot* b = memoryPool.allocFrozenString(6);
+
+    memoryPool.freeString(b);
+    REQUIRE(memoryPool.size() == JSON_STRING_SIZE(5));
+
+    memoryPool.freeString(a);
+    REQUIRE(memoryPool.size() == 0);
   }
 }
