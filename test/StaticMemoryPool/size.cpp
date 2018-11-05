@@ -27,17 +27,29 @@ TEST_CASE("StaticMemoryPool::size()") {
     REQUIRE(memoryPool.size() == 2 * JSON_STRING_SIZE(0));
   }
 
-  // SECTION("Decreases after freeString()") {
-  //   StringSlot* s1 = memoryPool.allocFrozenString(0);
-  //   StringSlot* s2 = memoryPool.allocFrozenString(1);
+  SECTION("Decreases after freeVariant()") {
+    StaticMemoryPool<128> memoryPool;
+    VariantSlot* a = memoryPool.allocVariant();
+    VariantSlot* b = memoryPool.allocVariant();
 
-  //   memoryPool.freeString(s1);
-  //   REQUIRE(memoryPool.size() == JSON_STRING_SIZE(0));
-  //   memoryPool.freeString(s2);
-  //   REQUIRE(memoryPool.size() == 0);
-  // }
+    memoryPool.freeVariant(b);
+    REQUIRE(memoryPool.size() == sizeof(VariantSlot));
+    memoryPool.freeVariant(a);
+    REQUIRE(memoryPool.size() == 0);
+  }
 
-  SECTION("Doesn't grow when memoryPool is full") {
+  SECTION("Decreases after freeString()") {
+    StaticMemoryPool<128> memoryPool;
+    StringSlot* a = memoryPool.allocFrozenString(5);
+    StringSlot* b = memoryPool.allocFrozenString(6);
+
+    memoryPool.freeString(b);
+    REQUIRE(memoryPool.size() == JSON_STRING_SIZE(5));
+    memoryPool.freeString(a);
+    REQUIRE(memoryPool.size() == 0);
+  }
+
+  SECTION("Doesn't grow when memory pool is full") {
     const size_t variantCount = 4;
     const size_t capacity = variantCount * sizeof(VariantSlot);
     StaticMemoryPool<capacity> memoryPool;
