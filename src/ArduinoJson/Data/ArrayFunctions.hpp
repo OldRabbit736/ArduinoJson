@@ -28,6 +28,7 @@ inline JsonVariantData* arrayAdd(JsonArrayData* arr, MemoryPool* pool) {
     arr->tail = slot;
   }
 
+  slot->value.keyIsOwned = false;
   return &slot->value;
 }
 
